@@ -5,8 +5,12 @@ all: program
 clean:
 	rm -rf *.o *.out
 
+test: tests/test.cpp
+	g++ -std=c++17 -Wall -Wextra -pedantic -O2 -o test.out tests/test.cpp src/cpu.cpp
+	./test.out
+
 run: program
 	./program.out
 
-program: main.cpp
-	g++ -std=c++17 -Wall -Wextra -pedantic -O2 -o program.out main.cpp cpu.cpp
+program: src/main.cpp
+	g++ -std=c++17 -Wall -Wextra -pedantic -O2 -o program.out src/main.cpp src/cpu.cpp

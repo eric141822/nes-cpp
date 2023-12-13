@@ -1,6 +1,5 @@
-#include <iostream>
-#include <cassert>
-#include "cpu.h"
+#include "test.h"
+
 void test_0xa9_lda_immediate_load_data() {
     struct CPU cpu;
     cpu.load_and_run({ 0xA9, 0x05, 0x00 });
