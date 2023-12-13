@@ -18,8 +18,7 @@ void test_0xa9_lda_immediate_zero_flag() {
 
 void test_0xaa_tax_move_a_to_x() {
     struct CPU cpu;
-    cpu.register_a = 10;
-    cpu.load_and_run({ 0xAA, 0x00 });
+    cpu.load_and_run({ 0xA9, 0x0A, 0xAA, 0x00 });
     assert(cpu.register_x == 10 && "Register X should be 10");
 }
 
@@ -31,8 +30,7 @@ void test_5_ops_together() {
 
 void test_inx_overflow() {
     struct CPU cpu;
-    cpu.register_x = 0xFF;
-    cpu.load_and_run({ 0xE8, 0xE8, 0x00 });
+    cpu.load_and_run({ 0xA9, 0xFF, 0xAA, 0xE8, 0xE8, 0x00 });
     assert(cpu.register_x == 0x01 && "Register X should be 0x01");
 }
 

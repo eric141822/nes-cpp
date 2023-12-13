@@ -10,9 +10,36 @@ void CPU::mem_write(uint16_t address, uint8_t value)
     this->memory[address] = value;
 }
 
+// Little-endian read.
+uint16_t CPU::mem_read_u16(uint16_t address)
+{
+    uint16_t lo = (uint16_t)this->mem_read(address);
+    uint16_t hi = (uint16_t)this->mem_read(address + 1);
+    return (hi << 8) | lo;
+}
+
+// Little-endian write.
+void CPU::mem_write_u16(uint16_t address, uint16_t value)
+{
+    uint8_t lo = (uint8_t)value & 0xFF;
+    uint8_t hi = (uint8_t)(value >> 8);
+    this->mem_write(address, lo);
+    this->mem_write(address + 1, hi);
+}
+
+void CPU::reset()
+{
+    this->register_a = 0;
+    this->register_x = 0;
+    this->status = 0;
+
+    this->pc = this->mem_read_u16(0xFFFC);
+}
+
 void CPU::load_and_run(std::vector<uint8_t> program)
 {
     this->load(program);
+    this->reset();
     this->run();
 }
 
@@ -22,7 +49,7 @@ void CPU::load(std::vector<uint8_t> program)
     {
         this->memory[i] = program[j];
     }
-    this->pc = 0x8000;
+    this->mem_write_u16(0xFFFC, 0x8000);
 }
 
 void CPU::run()

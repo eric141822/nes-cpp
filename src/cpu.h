@@ -14,6 +14,9 @@ struct CPU
     CPU() : register_a(0), register_x(0), status(0), pc(0){};
     uint8_t mem_read(uint16_t address);
     void mem_write(uint16_t address, uint8_t value);
+    uint16_t mem_read_u16(uint16_t address);
+    void mem_write_u16(uint16_t address, uint16_t value);
+    void reset();
     void load_and_run(std::vector<uint8_t> program);
     void load(std::vector<uint8_t> program);
     void run();
