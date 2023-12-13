@@ -56,16 +56,57 @@ void CPU::run()
 {
     while (true)
     {
-        int opcode = this->memory[this->pc];
+        int opcode = this->mem_read(this->pc);
         this->pc++;
         switch (opcode)
         {
         // LDA
         case 0xA9:
         {
-            uint8_t param = this->memory[this->pc];
+            this->lda(Immediate);
             this->pc++;
-            this->lda(param);
+            break;
+        }
+        case 0xA5:
+        {
+            this->lda(ZeroPage);
+            this->pc++;
+            break;
+        }
+        case 0xB5:
+        {
+            this->lda(ZeroPageX);
+            this->pc++;
+            break;
+        }
+        case 0xAD:
+        {
+            this->lda(Absolute);
+            this->pc += 2;
+            break;
+        }
+        case 0xBD:
+        {
+            this->lda(AbsoluteX);
+            this->pc += 2;
+            break;
+        }
+        case 0xB9:
+        {
+            this->lda(AbsoluteY);
+            this->pc += 2;
+            break;
+        }
+        case 0xA1:
+        {
+            this->lda(IndirectX);
+            this->pc++;
+            break;
+        }
+        case 0xB1:
+        {
+            this->lda(IndirectY);
+            this->pc++;
             break;
         }
         // BRK
@@ -112,9 +153,10 @@ void CPU::set_zero_and_negative_flags(uint8_t register_value)
     }
 }
 
-void CPU::lda(uint8_t param)
+void CPU::lda(AddressingMode mode)
 {
-    this->register_a = param;
+    uint16_t addr = this->get_operand_address(mode);
+    this->register_a = this->mem_read(addr);
     this->set_zero_and_negative_flags(this->register_a);
 }
 
@@ -128,4 +170,87 @@ void CPU::inx()
 {
     this->register_x++;
     this->set_zero_and_negative_flags(this->register_x);
+}
+
+uint8_t wrap_add_8(uint8_t a, uint8_t b)
+{
+    int result = (int)a + (int)b;
+    if (result > 0xFF)
+    {
+        result -= 0xFF;
+    }
+
+    return (uint8_t)result;
+}
+
+uint16_t wrap_add_16(uint16_t a, uint16_t b)
+{
+    int result = (int)a + (int)b;
+    if (result > 0xFFFF)
+    {
+        result -= 0xFFFF;
+    }
+
+    return (uint16_t)result;
+}
+
+uint16_t CPU::get_operand_address(AddressingMode mode)
+{
+    switch (mode)
+    {
+    case Immediate:
+        return this->pc;
+    case ZeroPage:
+        return this->mem_read(this->pc);
+    case Absolute:
+        return this->mem_read_u16(this->pc);
+    case ZeroPageX:
+    {
+        uint8_t pos = this->mem_read(this->pc);
+        uint16_t addr = (uint16_t)wrap_add_8(pos, this->register_x);
+        return addr;
+    }
+    case ZeroPageY:
+    {
+        uint8_t pos = this->mem_read(this->pc);
+        uint16_t addr = (uint16_t)wrap_add_8(pos, this->register_y);
+        return addr;
+    }
+    case AbsoluteX:
+    {
+        uint16_t pos = this->mem_read_u16(this->pc);
+        uint16_t addr = wrap_add_16(pos, this->register_x);
+        return addr;
+    }
+    case AbsoluteY:
+    {
+        uint16_t pos = this->mem_read_u16(this->pc);
+        uint16_t addr = wrap_add_16(pos, this->register_y);
+        return addr;
+    }
+    case IndirectX:
+    {
+        uint8_t base = this->mem_read(this->pc);
+        uint16_t ptr = (uint16_t)wrap_add_8(base, this->register_x);
+        uint16_t lo = this->mem_read(ptr);
+        uint16_t hi = this->mem_read(wrap_add_16(ptr, 1));
+        return (hi << 8) | lo;
+    }
+    case IndirectY:
+    {
+        uint8_t base = this->mem_read(this->pc);
+        uint16_t lo = this->mem_read((uint16_t)base);
+        uint16_t hi = this->mem_read((uint16_t)wrap_add_8(base, 1));
+        uint16_t deref_base = (hi << 8) | lo;
+        uint16_t deref = wrap_add_16(deref_base, this->register_y);
+        return deref;
+    }
+    case NoneAddressing:
+    default:
+    {
+        // not supported, cout to stderr;
+        std::cerr << "Not supported addressing mode: " << mode << std::endl;
+        return -1;
+    }
+    }
 }
