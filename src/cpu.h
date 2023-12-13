@@ -38,6 +38,7 @@ struct CPU
     void lda(AddressingMode mode);
     void tax();
     void inx();
+    void sta(AddressingMode mode);
 
     uint16_t get_operand_address(AddressingMode mode);
 };

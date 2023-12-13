@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "opcode.h"
 #include <iostream>
 uint8_t CPU::mem_read(uint16_t address)
 {
@@ -38,6 +39,7 @@ void CPU::reset()
 
 void CPU::load_and_run(std::vector<uint8_t> program)
 {
+    init_op_codes_map();
     this->load(program);
     this->reset();
     this->run();
@@ -56,59 +58,39 @@ void CPU::run()
 {
     while (true)
     {
-        int opcode = this->mem_read(this->pc);
+        uint8_t code = this->mem_read(this->pc);
         this->pc++;
-        switch (opcode)
+        uint8_t pc_state = pc;
+
+        OpCode opcode = OP_CODES_MAP[code];
+
+        switch (code)
         {
         // LDA
         case 0xA9:
-        {
-            this->lda(Immediate);
-            this->pc++;
-            break;
-        }
         case 0xA5:
-        {
-            this->lda(ZeroPage);
-            this->pc++;
-            break;
-        }
         case 0xB5:
-        {
-            this->lda(ZeroPageX);
-            this->pc++;
-            break;
-        }
         case 0xAD:
-        {
-            this->lda(Absolute);
-            this->pc += 2;
-            break;
-        }
         case 0xBD:
-        {
-            this->lda(AbsoluteX);
-            this->pc += 2;
-            break;
-        }
         case 0xB9:
-        {
-            this->lda(AbsoluteY);
-            this->pc += 2;
-            break;
-        }
         case 0xA1:
-        {
-            this->lda(IndirectX);
-            this->pc++;
-            break;
-        }
         case 0xB1:
         {
-            this->lda(IndirectY);
-            this->pc++;
+            this->lda(opcode.mode);
             break;
         }
+        case 0x85:
+        case 0x95:
+        case 0x8D:
+        case 0x9D:
+        case 0x99:
+        case 0x81:
+        case 0x91:
+        {
+            this->sta(opcode.mode);
+            break;
+        }
+
         // BRK
         case 0x00:
         {
@@ -128,6 +110,10 @@ void CPU::run()
         {
             break;
         }
+        }
+        if (this->pc == pc_state)
+        {
+            this->pc += opcode.len - 1;
         }
     }
 };
@@ -253,4 +239,10 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
         return -1;
     }
     }
+}
+
+void CPU::sta(AddressingMode mode)
+{
+    uint16_t addr = this->get_operand_address(mode);
+    this->mem_write(addr, this->register_a);
 }
