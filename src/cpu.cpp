@@ -1,5 +1,4 @@
 #include "cpu.h"
-#include "opcode.h"
 #include <iostream>
 uint8_t CPU::mem_read(uint16_t address)
 {
@@ -32,6 +31,7 @@ void CPU::reset()
 {
     this->register_a = 0;
     this->register_x = 0;
+    this->register_y = 0;
     this->status = 0;
 
     this->pc = this->mem_read_u16(0xFFFC);

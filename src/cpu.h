@@ -2,7 +2,7 @@
 #define CPU_H
 #include <cstdint>
 #include <vector>
-
+#include "opcode.h"
 enum AddressingMode
 {
     Immediate,
