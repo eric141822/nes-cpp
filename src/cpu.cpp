@@ -13,16 +13,16 @@ void CPU::mem_write(uint16_t address, uint8_t value)
 // Little-endian read.
 uint16_t CPU::mem_read_u16(uint16_t address)
 {
-    uint16_t lo = (uint16_t)this->mem_read(address);
-    uint16_t hi = (uint16_t)this->mem_read(address + 1);
+    uint16_t lo = static_cast<uint16_t>(this->mem_read(address));
+    uint16_t hi = static_cast<uint16_t>(this->mem_read(address + 1));
     return (hi << 8) | lo;
 }
 
 // Little-endian write.
 void CPU::mem_write_u16(uint16_t address, uint16_t value)
 {
-    uint8_t lo = (uint8_t)value & 0xFF;
-    uint8_t hi = (uint8_t)(value >> 8);
+    uint8_t lo = value & 0xFF;
+    uint8_t hi = value >> 8;
     this->mem_write(address, lo);
     this->mem_write(address + 1, hi);
 }
@@ -158,28 +158,6 @@ void CPU::inx()
     this->set_zero_and_negative_flags(this->register_x);
 }
 
-uint8_t wrap_add_8(uint8_t a, uint8_t b)
-{
-    int result = (int)a + (int)b;
-    if (result > 0xFF)
-    {
-        result -= 0xFF;
-    }
-
-    return (uint8_t)result;
-}
-
-uint16_t wrap_add_16(uint16_t a, uint16_t b)
-{
-    int result = (int)a + (int)b;
-    if (result > 0xFFFF)
-    {
-        result -= 0xFFFF;
-    }
-
-    return (uint16_t)result;
-}
-
 uint16_t CPU::get_operand_address(AddressingMode mode)
 {
     switch (mode)
@@ -193,42 +171,43 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     case ZeroPageX:
     {
         uint8_t pos = this->mem_read(this->pc);
-        uint16_t addr = (uint16_t)wrap_add_8(pos, this->register_x);
+        uint16_t addr = static_cast<uint16_t>(pos + this->register_x);
         return addr;
     }
     case ZeroPageY:
     {
         uint8_t pos = this->mem_read(this->pc);
-        uint16_t addr = (uint16_t)wrap_add_8(pos, this->register_y);
+        uint16_t addr = static_cast<uint16_t>(pos + this->register_y);
         return addr;
     }
     case AbsoluteX:
     {
         uint16_t pos = this->mem_read_u16(this->pc);
-        uint16_t addr = wrap_add_16(pos, this->register_x);
+        uint16_t addr = pos + this->register_x;
         return addr;
     }
     case AbsoluteY:
     {
         uint16_t pos = this->mem_read_u16(this->pc);
-        uint16_t addr = wrap_add_16(pos, this->register_y);
+        uint16_t addr = pos + this->register_y;
         return addr;
     }
     case IndirectX:
     {
         uint8_t base = this->mem_read(this->pc);
-        uint16_t ptr = (uint16_t)wrap_add_8(base, this->register_x);
+
+        uint16_t ptr = static_cast<uint16_t>(base + this->register_x);
         uint16_t lo = this->mem_read(ptr);
-        uint16_t hi = this->mem_read(wrap_add_16(ptr, 1));
+        uint16_t hi = this->mem_read(ptr + 1);
         return (hi << 8) | lo;
     }
     case IndirectY:
     {
         uint8_t base = this->mem_read(this->pc);
-        uint16_t lo = this->mem_read((uint16_t)base);
-        uint16_t hi = this->mem_read((uint16_t)wrap_add_8(base, 1));
+        uint16_t lo = this->mem_read(static_cast<uint16_t>(base));
+        uint16_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
         uint16_t deref_base = (hi << 8) | lo;
-        uint16_t deref = wrap_add_16(deref_base, this->register_y);
+        uint16_t deref = deref_base + this->register_y;
         return deref;
     }
     case NoneAddressing:
@@ -245,4 +224,58 @@ void CPU::sta(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     this->mem_write(addr, this->register_a);
+}
+
+void CPU::set_register_a(uint8_t val)
+{
+    this->register_a = val;
+    this->set_zero_and_negative_flags(this->register_a);
+}
+
+void CPU::add_to_register_a(uint8_t val)
+{
+    // add 1 if carry flag is set.
+    uint16_t result = static_cast<uint16_t>(this->register_a) +
+                      static_cast<uint16_t>(val) + static_cast<uint16_t>(this->status & CPU_FLAGS::CARRY);
+
+    // set carry flag if result is greater than 255, else unset.
+    if (result > 0xFF)
+    {
+        this->status |= CPU_FLAGS::CARRY;
+    }
+    else
+    {
+        this->status &= ~CPU_FLAGS::CARRY;
+    }
+
+    // set overflow flag if result is greater than 127, else unset.
+    if ((val ^ result) & (result ^ this->register_a) & 0x80)
+    {
+        this->status |= CPU_FLAGS::OVERFLOW;
+    }
+    else
+    {
+        this->status &= ~CPU_FLAGS::OVERFLOW;
+    }
+
+    this->set_register_a(static_cast<uint8_t>(result));
+}
+
+void CPU::adc(AddressingMode mode)
+{
+    uint16_t addr = this->get_operand_address(mode);
+    uint8_t val = this->mem_read(addr);
+    this->add_to_register_a(val);
+}
+
+uint8_t wrapping_neg(uint8_t value)
+{
+    return static_cast<uint8_t>(-value);
+}
+
+void CPU::sbc(AddressingMode mode)
+{
+    uint16_t addr = this->get_operand_address(mode);
+    uint8_t val = this->mem_read(addr);
+    this->add_to_register_a(wrapping_neg(val) - 1);
 }

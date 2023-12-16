@@ -52,6 +52,8 @@ struct CPU
     /* ------ HELPERS ------ */
     void set_zero_and_negative_flags(uint8_t register_value);
     bool check_status_flag();
+    void add_to_register_a(uint8_t val);
+    void set_register_a(uint8_t val);
     /* --------------------- */
     void lda(AddressingMode mode);
     void tax();
