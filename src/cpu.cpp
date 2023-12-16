@@ -91,6 +91,60 @@ void CPU::run()
             break;
         }
 
+        // ADC
+        case 0x69:
+        case 0x65:
+        case 0x75:
+        case 0x6D:
+        case 0x7D:
+        case 0x79:
+        case 0x61:
+        case 0x71:
+        {
+            this->adc(opcode.mode);
+            break;
+        }
+
+        // SBC
+        case 0xE9:
+        case 0xE5:
+        case 0xF5:
+        case 0xED:
+        case 0xFD:
+        case 0xF9:
+        case 0xE1:
+        case 0xF1:
+        {
+            this->sbc(opcode.mode);
+            break;
+        }
+
+        // AND
+        case 0x29:
+        case 0x25:
+        case 0x35:
+        case 0x2D:
+        case 0x3D:
+        case 0x39:
+        case 0x21:
+        case 0x31:
+        {
+            this->and_op(opcode.mode);
+            break;
+        }
+
+        // ASL
+        case 0x0A:
+        case 0x06:
+        case 0x16:
+        case 0x0E:
+        case 0x1E:
+        {
+            this->asl(opcode.mode);
+            break;
+        }
+        
+
         // BRK
         case 0x00:
         {
