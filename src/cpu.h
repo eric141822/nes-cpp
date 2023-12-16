@@ -16,6 +16,18 @@ enum AddressingMode
     IndirectY,
     NoneAddressing,
 };
+
+struct CPU_flags
+{
+    const uint8_t CARRY = 0b00000001;
+    const uint8_t ZERO = 0b00000010;
+    const uint8_t INTERRUPT = 0b00000100;
+    const uint8_t DECIMAL_UNUSED = 0b00001000;
+    const uint8_t BREAK = 0b00010000;
+    const uint8_t BREAK2 = 0b00100000;
+    const uint8_t OVERFLOW = 0b01000000;
+    const uint8_t NEGATIVE = 0b10000000;
+};
 struct CPU
 {
     uint8_t register_a;
