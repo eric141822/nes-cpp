@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include "opcode.h"
+
 enum AddressingMode
 {
     Immediate,
@@ -62,7 +63,6 @@ struct CPU
 
     /* ------ TODO ------ */
     void adc(AddressingMode mode);
-    void sbc(AddressingMode mode);
     void and_op(AddressingMode mode);
     uint8_t asl(AddressingMode mode);
     void branch(bool cond); // branch if cond is true

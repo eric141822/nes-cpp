@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "cpu.h"
+
 struct OpCode
 {
     uint8_t opcode;
