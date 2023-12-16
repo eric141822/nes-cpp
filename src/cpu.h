@@ -64,7 +64,7 @@ struct CPU
     void adc(AddressingMode mode);
     void sbc(AddressingMode mode);
     void and_op(AddressingMode mode);
-    void asl(AddressingMode mode);
+    uint8_t asl(AddressingMode mode);
     void branch(bool cond); // branch if cond is true
     void clear(uint8_t flag_to_clear); // clear flag
     void cmp_op(AddressingMode mode);

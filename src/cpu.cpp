@@ -279,3 +279,26 @@ void CPU::sbc(AddressingMode mode)
     uint8_t val = this->mem_read(addr);
     this->add_to_register_a(wrapping_neg(val) - 1);
 }
+
+void CPU::and_op(AddressingMode mode) {
+    uint16_t addr = this->get_operand_address(mode);
+    uint8_t val = this->mem_read(addr);
+    this->set_register_a(this->register_a & val);
+}
+
+uint8_t CPU::asl(AddressingMode mode) {
+    uint16_t addr = this->get_operand_address(mode);
+    uint8_t val = this->mem_read(addr);
+
+    // set CARRY.
+    if ((val >> 7) == 1) {
+        this->status |= CPU_FLAGS::CARRY;
+    } else {
+        this->status &= ~CPU_FLAGS::CARRY;
+    }
+
+    val <<= 1;
+    this->mem_write(addr, val);
+    this->set_zero_and_negative_flags(val);
+    return val;
+}

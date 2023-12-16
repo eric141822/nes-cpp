@@ -34,6 +34,34 @@ std::vector<OpCode> CPU_OP_CODES = {
     OpCode(0x79, "ADC", 3, 4, AddressingMode::AbsoluteY),
     OpCode(0x61, "ADC", 2, 6, AddressingMode::IndirectX),
     OpCode(0x71, "ADC", 2, 5, AddressingMode::IndirectY),
+
+    //SBC
+    OpCode(0xE9, "SBC", 2, 2, AddressingMode::Immediate),
+    OpCode(0xE5, "SBC", 2, 3, AddressingMode::ZeroPage),
+    OpCode(0xF5, "SBC", 2, 4, AddressingMode::ZeroPageX),
+    OpCode(0xED, "SBC", 3, 4, AddressingMode::Absolute),
+    OpCode(0xFD, "SBC", 3, 4, AddressingMode::AbsoluteX),
+    OpCode(0xF9, "SBC", 3, 4, AddressingMode::AbsoluteY),
+    OpCode(0xE1, "SBC", 2, 6, AddressingMode::IndirectX),
+    OpCode(0xF1, "SBC", 2, 5, AddressingMode::IndirectY),
+
+    //AND
+    OpCode(0x29, "AND", 2, 2, AddressingMode::Immediate),
+    OpCode(0x25, "AND", 2, 3, AddressingMode::ZeroPage),
+    OpCode(0x35, "AND", 2, 4, AddressingMode::ZeroPageX),
+    OpCode(0x2D, "AND", 3, 4, AddressingMode::Absolute),
+    OpCode(0x3D, "AND", 3, 4, AddressingMode::AbsoluteX),
+    OpCode(0x39, "AND", 3, 4, AddressingMode::AbsoluteY),
+    OpCode(0x21, "AND", 2, 6, AddressingMode::IndirectX),
+    OpCode(0x31, "AND", 2, 5, AddressingMode::IndirectY),
+
+    //ASL
+    OpCode(0x0A, "ASL", 1, 2, AddressingMode::NoneAddressing),
+    OpCode(0x06, "ASL", 2, 5, AddressingMode::ZeroPage),
+    OpCode(0x16, "ASL", 2, 6, AddressingMode::ZeroPageX),
+    OpCode(0x0E, "ASL", 3, 6, AddressingMode::Absolute),
+    OpCode(0x1E, "ASL", 3, 7, AddressingMode::AbsoluteX),
+    
 };
 
 std::map<uint8_t, OpCode> OP_CODES_MAP;
