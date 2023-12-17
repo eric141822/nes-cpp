@@ -519,21 +519,21 @@ void CPU::run()
         // SEC
         case 0x38:
         {
-            this->sec();
+            this->status |= CPU_FLAGS::CARRY;
             break;
         }
 
         // SED
         case 0xF8:
         {
-            this->sed();
+            this->status |= CPU_FLAGS::DECIMAL_UNUSED;
             break;
         }
 
         // SEI
         case 0x78:
         {
-            this->sei();
+            this->status |= CPU_FLAGS::INTERRUPT;
             break;
         }
 
@@ -1114,21 +1114,6 @@ void CPU::rti()
 void CPU::rts()
 {
     this->pc = this->stack_pop_u16() + 1;
-}
-
-void CPU::sec()
-{
-    this->status |= CPU_FLAGS::CARRY;
-}
-
-void CPU::sed()
-{
-    this->status |= CPU_FLAGS::DECIMAL_UNUSED;
-}
-
-void CPU::sei()
-{
-    this->status |= CPU_FLAGS::INTERRUPT;
 }
 
 void CPU::stx(AddressingMode mode)

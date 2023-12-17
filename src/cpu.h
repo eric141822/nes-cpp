@@ -98,9 +98,6 @@ struct CPU
     void rti();
     void rts();
     void sbc(AddressingMode mode);
-    void sec(); // implied
-    void sed(); // implied
-    void sei(); // implied
     void stx(AddressingMode mode);
     void sty(AddressingMode mode);
     void tay();
