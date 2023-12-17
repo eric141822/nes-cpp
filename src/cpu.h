@@ -3,23 +3,10 @@
 #include <cstdint>
 #include <vector>
 #include "opcode.h"
+#include "global.h"
 
-enum AddressingMode
-{
-    Immediate,
-    ZeroPage,
-    ZeroPageX,
-    ZeroPageY,
-    Absolute,
-    AbsoluteX,
-    AbsoluteY,
-    IndirectX,
-    IndirectY,
-    NoneAddressing,
-};
-
-const extern uint16_t STACK_T = 0x0100;
-const extern uint16_t STACK_RESET = 0xfd;
+// const extern uint16_t STACK_T = 0x0100;
+// const extern uint16_t STACK_RESET = 0xfd;
 struct CPU_FLAGS
 {
     static constexpr uint8_t CARRY = 0b00000001;
