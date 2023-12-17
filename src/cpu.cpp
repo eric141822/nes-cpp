@@ -62,8 +62,8 @@ void CPU::reset()
     this->register_a = 0;
     this->register_x = 0;
     this->register_y = 0;
-    this->status = 0;
-
+    this->status = STATUS_RESET;
+    this->stack_pointer = STACK_RESET;
     this->pc = this->mem_read_u16(0xFFFC);
 }
 
