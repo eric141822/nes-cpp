@@ -828,4 +828,71 @@ void CPU::ror(AddressingMode mode)
     this->set_zero_and_negative_flags(val);
 }
 
+void CPU::rti()
+{
+    this->status = this->stack_pop();
+    this->status &= ~CPU_FLAGS::BREAK;
+    this->status |= CPU_FLAGS::UNUSED; // reset this bit to 1.
+    this->pc = this->stack_pop_u16();
+}
 
+void CPU::rts()
+{
+    this->pc = this->stack_pop_u16() + 1;
+}
+
+void CPU::sec()
+{
+    this->status |= CPU_FLAGS::CARRY;
+}
+
+void CPU::sed()
+{
+    this->status |= CPU_FLAGS::DECIMAL_UNUSED;
+}
+
+void CPU::sei()
+{
+    this->status |= CPU_FLAGS::INTERRUPT;
+}
+
+void CPU::stx(AddressingMode mode)
+{
+    uint16_t addr = this->get_operand_address(mode);
+    this->mem_write(addr, this->register_x);
+}
+
+void CPU::sty(AddressingMode mode)
+{
+    uint16_t addr = this->get_operand_address(mode);
+    this->mem_write(addr, this->register_y);
+}
+
+void CPU::tay()
+{
+    this->register_y = this->register_a;
+    this->set_zero_and_negative_flags(this->register_y);
+}
+
+void CPU::tsx()
+{
+    this->register_x = this->stack_pointer;
+    this->set_zero_and_negative_flags(this->register_x);
+}
+
+void CPU::txa()
+{
+    this->register_a = this->register_x;
+    this->set_zero_and_negative_flags(this->register_a);
+}
+
+void CPU::txs()
+{
+    this->stack_pointer = this->register_x;
+}
+
+void CPU::tya()
+{
+    this->register_a = this->register_y;
+    this->set_zero_and_negative_flags(this->register_a);
+}
