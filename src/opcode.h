@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "cpu.h"
+#include "global.h"
 struct OpCode
 {
     uint8_t opcode;
@@ -18,6 +19,6 @@ struct OpCode
 };
 
 void init_op_codes_map();
-// extern std::vector<OpCode> CPU_OP_CODES;
 extern std::map<uint8_t, OpCode> OP_CODES_MAP;
+
 #endif // !OPCODE_H
