@@ -314,19 +314,294 @@ void CPU::run()
             break;
         }
 
-        case 0xAA:
+        // DEX
+        case 0xCA:
         {
-            this->tax();
+            this->dex();
             break;
         }
+
+        // DEY
+        case 0x88:
+        {
+            this->dey();
+            break;
+        }
+
+        // EOR
+        case 0x49:
+        case 0x45:
+        case 0x55:
+        case 0x4D:
+        case 0x5D:
+        case 0x59:
+        case 0x41:
+        case 0x51:
+        {
+            this->eor(opcode.mode);
+            break;
+        }
+
+        // INC
+        case 0xE6:
+        case 0xF6:
+        case 0xEE:
+        case 0xFE:
+        {
+            this->inc(opcode.mode);
+            break;
+        }
+
+        // INX
         case 0xE8:
         {
             this->inx();
             break;
         }
-        default:
+
+        // INY
+        case 0xC8:
+        {
+            this->iny();
+            break;
+        }
+
+        // JMP Absolute
+        case 0x4C:
+        {
+            this->jmp_abs();
+            break;
+        }
+
+        // JMP Indirect
+        case 0x6C:
+        {
+            this->jmp();
+            break;
+        }
+
+        // JSR
+        case 0x20:
+        {
+            this->jsr();
+            break;
+        }
+
+        // LDX
+        case 0xA2:
+        case 0xA6:
+        case 0xB6:
+        case 0xAE:
+        case 0xBE:
+        {
+            this->ldx(opcode.mode);
+            break;
+        }
+
+        // LDY
+        case 0xA0:
+        case 0xA4:
+        case 0xB4:
+        case 0xAC:
+        case 0xBC:
+        {
+            this->ldy(opcode.mode);
+            break;
+        }
+
+        // LSR
+        case 0x4A:
+        case 0x46:
+        case 0x56:
+        case 0x4E:
+        case 0x5E:
+        {
+            this->lsr(opcode.mode);
+            break;
+        }
+
+        // NOP, NO OP.
+        case 0xEA:
         {
             break;
+        }
+
+        // ORA
+        case 0x09:
+        case 0x05:
+        case 0x15:
+        case 0x0D:
+        case 0x1D:
+        case 0x19:
+        case 0x01:
+        case 0x11:
+        {
+            this->ora(opcode.mode);
+            break;
+        }
+
+        // PHA
+        case 0x48:
+        {
+            this->pha();
+            break;
+        }
+
+        // PHP
+        case 0x08:
+        {
+            this->php();
+            break;
+        }
+
+        // PLA
+        case 0x68:
+        {
+            this->pla();
+            break;
+        }
+
+        // PLP
+        case 0x28:
+        {
+            this->plp();
+            break;
+        }
+
+        // ROL Accumulator
+        case 0x2A:
+        {
+            this->rol_acc();
+            break;
+        }
+
+        // ROL
+        case 0x26:
+        case 0x36:
+        case 0x2E:
+        case 0x3E:
+        {
+            this->rol(opcode.mode);
+            break;
+        }
+
+        // ROR Accumulator
+        case 0x6A:
+        {
+            this->ror_acc();
+            break;
+        }
+
+        // ROR
+        case 0x66:
+        case 0x76:
+        case 0x6E:
+        case 0x7E:
+        {
+            this->ror(opcode.mode);
+            break;
+        }
+
+        // RTI
+        case 0x40:
+        {
+            this->rti();
+            break;
+        }
+
+        // RTS
+        case 0x60:
+        {
+            this->rts();
+            break;
+        }
+
+        // SEC
+        case 0x38:
+        {
+            this->sec();
+            break;
+        }
+
+        // SED
+        case 0xF8:
+        {
+            this->sed();
+            break;
+        }
+
+        // SEI
+        case 0x78:
+        {
+            this->sei();
+            break;
+        }
+
+        // STX
+        case 0x86:
+        case 0x96:
+        case 0x8E:
+        {
+            this->stx(opcode.mode);
+            break;
+        }
+
+        // STY
+        case 0x84:
+        case 0x94:
+        case 0x8C:
+        {
+            this->sty(opcode.mode);
+            break;
+        }
+
+        // TAX
+        case 0xAA:
+        {
+            this->tax();
+            break;
+        }
+
+        // TAY
+        case 0xA8:
+        {
+            this->tay();
+            break;
+        }
+
+        // TSX
+        case 0xBA:
+        {
+            this->tsx();
+            break;
+        }
+
+        // TXA
+        case 0x8A:
+        {
+            this->txa();
+            break;
+        }
+
+        // TXS
+        case 0x9A:
+        {
+            this->txs();
+            break;
+        }
+
+        // TYA
+        case 0x98:
+        {
+            this->tya();
+            break;
+        }
+
+        default:
+        {
+            std::cerr << "Not implemented opcode: " << std::hex << static_cast<int>(code) << std::endl;
+            // force exit.
+            exit(EXIT_FAILURE);
         }
         }
         if (this->pc == pc_state)
