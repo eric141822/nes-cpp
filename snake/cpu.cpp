@@ -78,10 +78,7 @@ void CPU::load_and_run(std::vector<uint8_t> program)
 void CPU::load(std::vector<uint8_t> program)
 {
     init_op_codes_map();
-    for (uint16_t i = 0x0600, j = 0; i < (0x0600 + program.size()); ++i, ++j)
-    {
-        this->memory[i] = program[j];
-    }
+    std::copy(program.begin(), program.end(), this->memory + 0x0600);
     this->mem_write_u16(0xFFFC, 0x0600);
 }
 
@@ -94,12 +91,14 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
 {
     while (true)
     {
+        // std::cerr << "PC at: " << std::hex << static_cast<int>(this->pc) << std::endl;
         uint8_t code = this->mem_read(this->pc);
         this->pc++;
-        uint8_t pc_state = pc;
+        uint16_t pc_state = this->pc;
 
         OpCode opcode = OP_CODES_MAP[code];
-        std::cerr << "opcode: " << std::hex << static_cast<int>(opcode.opcode) << " with mode: " << opcode.mode << std::endl;
+        // std::cerr << "opcode: " << std::hex << static_cast<int>(opcode.opcode) << " with mode: " << opcode.mode << std::endl;
+
         switch (code)
         {
         // LDA
@@ -619,10 +618,14 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
             break;
         }
         }
+        // std::cout << "this->pc: " << std::hex << static_cast<int>(this->pc) << std::endl;
+        // std::cout << "pc_state: " << std::hex << static_cast<int>(pc_state) << std::endl;
         if (this->pc == pc_state)
         {
-            this->pc += opcode.len - 1;
+            this->pc += (opcode.len - 1);
+            // std::cout << "PC after update: " << std::hex << static_cast<int>(this->pc) << std::endl;
         }
+
         callback(*this);
     }
 };
@@ -650,8 +653,10 @@ void CPU::set_zero_and_negative_flags(uint8_t register_value)
 
 void CPU::lda(AddressingMode mode)
 {
+    // std::cout << "In LDA mode:" << mode << std::endl;
     uint16_t addr = this->get_operand_address(mode);
     this->register_a = this->mem_read(addr);
+    // std::cout << "addr: " << addr << " with val = " << static_cast<int>(this->register_a) << std::endl;
     this->set_zero_and_negative_flags(this->register_a);
 }
 
@@ -674,7 +679,7 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     case Immediate:
         return this->pc;
     case ZeroPage:
-        return this->mem_read(this->pc);
+        return static_cast<uint16_t>(this->mem_read(this->pc));
     case Absolute:
         return this->mem_read_u16(this->pc);
     case ZeroPageX:
@@ -705,7 +710,7 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     {
         uint8_t base = this->mem_read(this->pc);
 
-        uint16_t ptr = static_cast<uint16_t>(base + this->register_x);
+        uint8_t ptr = base + this->register_x;
         uint16_t lo = this->mem_read(ptr);
         uint16_t hi = this->mem_read(ptr + 1);
         return (hi << 8) | lo;
@@ -713,8 +718,8 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     case IndirectY:
     {
         uint8_t base = this->mem_read(this->pc);
-        uint16_t lo = this->mem_read(static_cast<uint16_t>(base));
-        uint16_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
+        uint16_t lo = this->mem_read(base);
+        uint16_t hi = this->mem_read(base + 1);
         uint16_t deref_base = (hi << 8) | lo;
         uint16_t deref = deref_base + this->register_y;
         return deref;
@@ -733,6 +738,7 @@ void CPU::sta(AddressingMode mode)
 {
     // std::cerr << "In STA mode:" << mode << std::endl;
     uint16_t addr = this->get_operand_address(mode);
+    // std::cerr << "addr: " << addr << " with val = " << static_cast<int>(this->register_a) << std::endl;
     this->mem_write(addr, this->register_a);
 }
 
