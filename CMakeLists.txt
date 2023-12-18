@@ -14,11 +14,21 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set compiler flags
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror -O3")
 
+# Find SDL2 package
+find_package(SDL2 REQUIRED)
+find_package(SDL2_image REQUIRED)
+
+# Include SDL2 include directories
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
+
 # main sources variable
 set(SOURCES src/cpu.cpp src/opcode.cpp)
 
 # Add executable target
 add_executable(main.out ${SOURCES} src/main.cpp)
+
+add_executable(snake.out snake/cpu.cpp snake/opcode.cpp snake/main.cpp)
+target_link_libraries(snake.out ${SDL2_LIBRARIES} ${SDL2_IMAGE_LIBRARIES})
 
 set(TEST_NAMES lda_immediate_load_data lda_immediate_zero_flag tax_move_a_to_x inx_overflow 5_ops_together lda_from_memory)
 
