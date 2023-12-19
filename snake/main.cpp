@@ -9,6 +9,7 @@
 
 SDL_Color color_constructor(uint8_t byte)
 {
+    // std::cout << "byte: " << (int)byte << std::endl;
     switch (byte)
     {
     // BLACK
@@ -53,10 +54,11 @@ bool read_screen_state(CPU &cpu, uint8_t screen_state[32 * 3 * 32])
 {
     bool update = false;
     int frame_idx = 0;
-    for (int i = 0x0200; i < 0x600; ++i)
+    for (int i = 0x0200; i < 0x0600; ++i)
     {
         uint8_t color_idx = cpu.mem_read(i);
-        SDL_Color color = color_constructor(color_idx); // Assuming you have a way to extract RGB from SDL_Color
+        std::cout<< "color_idx: " << (int)color_idx << std::endl;
+        SDL_Color color = color_constructor(color_idx);
         uint8_t r = color.r;
         uint8_t g = color.g;
         uint8_t b = color.b;
@@ -79,6 +81,10 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
         switch (event.type)
         {
         case SDL_QUIT:
+        {
+            exit(0);
+            break;
+        }
         case SDL_KEYDOWN:
             if (event.key.keysym.sym == SDLK_ESCAPE)
             {
@@ -88,22 +94,22 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
             // if W is pressed
             else if (event.key.keysym.sym == SDLK_w)
             {
-                cpu.mem_write(0xfe, 0x77);
+                cpu.mem_write(0xff, 0x77);
             }
             // if A is pressed
             else if (event.key.keysym.sym == SDLK_a)
             {
-                cpu.mem_write(0xfe, 0x61);
+                cpu.mem_write(0xff, 0x61);
             }
             // if S is pressed
             else if (event.key.keysym.sym == SDLK_s)
             {
-                cpu.mem_write(0xfe, 0x73);
+                cpu.mem_write(0xff, 0x73);
             }
             // if D is pressed
             else if (event.key.keysym.sym == SDLK_d)
             {
-                cpu.mem_write(0xfe, 0x64);
+                cpu.mem_write(0xff, 0x64);
             }
         default:
             // do nothing
@@ -157,8 +163,6 @@ int main()
         SDL_Quit();
         return 1;
     }
-
-    // ... Initialization of CPU and game code ...
 
     std::vector<uint8_t> game_code = {
         0x20, 0x06, 0x06, 0x20, 0x38, 0x06, 0x20, 0x0d, 0x06, 0x20, 0x2a, 0x06, 0x60, 0xa9, 0x02, 0x85,

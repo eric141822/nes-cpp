@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Set compiler flags
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror -O3")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wpedantic -Werror")
 
 # Find SDL2 package
 find_package(SDL2 REQUIRED)

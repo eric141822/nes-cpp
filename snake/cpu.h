@@ -22,7 +22,7 @@ struct CPU_FLAGS
     static constexpr uint8_t DECIMAL_UNUSED = 0b00001000;
     static constexpr uint8_t BREAK = 0b00010000;
     static constexpr uint8_t UNUSED = 0b00100000; // should always be 1.
-    static constexpr uint8_t OVERFLOW = 0b01000000;
+    static constexpr uint8_t OVERFLW = 0b01000000;
     static constexpr uint8_t NEGATIVE = 0b10000000;
 };
 struct CPU

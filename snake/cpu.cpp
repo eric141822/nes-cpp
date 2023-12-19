@@ -242,14 +242,14 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BVC
         case 0x50:
         {
-            this->branch((this->status & CPU_FLAGS::OVERFLOW) == 0);
+            this->branch((this->status & CPU_FLAGS::OVERFLW) == 0);
             break;
         }
 
         // BVS
         case 0x70:
         {
-            this->branch((this->status & CPU_FLAGS::OVERFLOW) != 0);
+            this->branch((this->status & CPU_FLAGS::OVERFLW) != 0);
             break;
         }
 
@@ -277,7 +277,7 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // CLV
         case 0xB8:
         {
-            this->status &= ~CPU_FLAGS::OVERFLOW;
+            this->status &= ~CPU_FLAGS::OVERFLW;
             break;
         }
 
@@ -767,11 +767,11 @@ void CPU::add_to_register_a(uint8_t val)
     // set overflow flag if result is greater than 127, else unset.
     if ((val ^ result) & (result ^ this->register_a) & 0x80)
     {
-        this->status |= CPU_FLAGS::OVERFLOW;
+        this->status |= CPU_FLAGS::OVERFLW;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::OVERFLOW;
+        this->status &= ~CPU_FLAGS::OVERFLW;
     }
 
     this->set_register_a(static_cast<uint8_t>(result));
@@ -869,7 +869,7 @@ void CPU::bit(AddressingMode mode)
 
     if ((val & 0b0100'0000) != 0)
     {
-        this->status |= CPU_FLAGS::OVERFLOW;
+        this->status |= CPU_FLAGS::OVERFLW;
     }
 }
 
