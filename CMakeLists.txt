@@ -27,7 +27,7 @@ set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
 # Add executable target
 add_executable(main.out ${SOURCES} src/main.cpp)
 
-add_executable(snake.out snake/cpu.cpp snake/opcode.cpp snake/main.cpp)
+add_executable(snake.out snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp)
 target_link_libraries(snake.out ${SDL2_LIBRARIES})
 
 set(TEST_NAMES lda_immediate_load_data lda_immediate_zero_flag tax_move_a_to_x inx_overflow 5_ops_together lda_from_memory)

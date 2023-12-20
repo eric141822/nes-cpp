@@ -15,7 +15,7 @@ const uint16_t STACK_START = 0x0100;
 const uint8_t STACK_RESET = 0xFD;
 
 const uint8_t STATUS_RESET = 0b00100100;
-struct CPU_FLAGS
+namespace cpu_flags
 {
     static constexpr uint8_t CARRY = 0b00000001;
     static constexpr uint8_t ZERO = 0b00000010;

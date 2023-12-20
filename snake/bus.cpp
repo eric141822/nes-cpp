@@ -5,7 +5,7 @@ uint8_t Bus::mem_read(uint16_t address)
     if (address >= RAM && address <= RAM_END)
     {
         uint16_t mirrored_addr = address & 0b00000111'11111111;
-        return this->cpu_vram[mirrored_addr];
+        return this->cpu_ram[mirrored_addr];
     }
     else if (address >= PPU_REGISTERS && address <= PPU_REGISTERS_END)
     {
@@ -32,7 +32,7 @@ void Bus::mem_write(uint16_t address, uint8_t value)
     if (address >= RAM && address <= RAM_END)
     {
         uint16_t mirrored_addr = address & 0b00000111'11111111;
-        this->cpu_vram[mirrored_addr] = value;
+        this->cpu_ram[mirrored_addr] = value;
     }
     else if (address >= PPU_REGISTERS && address <= PPU_REGISTERS_END)
     {
@@ -41,7 +41,7 @@ void Bus::mem_write(uint16_t address, uint8_t value)
     }
     else
     {
-        std::cout << "Invalid address on mem_write: "<< static_cast<int>(address) <<"\n";
+        std::cout << "Invalid address\n";
     }
 }
 

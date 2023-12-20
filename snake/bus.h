@@ -11,7 +11,7 @@ const uint16_t PPU_REGISTERS_END = 0x3FFF;
 
 struct Bus
 {
-    uint8_t cpu_vram[2048];
+    uint8_t cpu_ram[2048];
 
     Bus(){};
 
