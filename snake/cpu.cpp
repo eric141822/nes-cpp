@@ -31,24 +31,29 @@ uint16_t CPU::stack_pop_u16()
 
 uint8_t CPU::mem_read(uint16_t address)
 {
-    return this->bus.mem_read(address);
+    return this->memory[address];
 }
 
 void CPU::mem_write(uint16_t address, uint8_t value)
 {
-    this->bus.mem_write(address, value);
+    this->memory[address] = value;
 }
 
 // Little-endian read.
 uint16_t CPU::mem_read_u16(uint16_t address)
 {
-    return this->bus.mem_read_u16(address);
+    uint16_t lo = static_cast<uint16_t>(this->mem_read(address));
+    uint16_t hi = static_cast<uint16_t>(this->mem_read(address + 1));
+    return (hi << 8) | lo;
 }
 
 // Little-endian write.
 void CPU::mem_write_u16(uint16_t address, uint16_t value)
 {
-    this->bus.mem_write_u16(address, value);
+    uint8_t lo = value & 0xFF;
+    uint8_t hi = value >> 8;
+    this->mem_write(address, lo);
+    this->mem_write(address + 1, hi);
 }
 
 void CPU::reset()
@@ -73,10 +78,7 @@ void CPU::load_and_run(std::vector<uint8_t> program)
 void CPU::load(std::vector<uint8_t> program)
 {
     init_op_codes_map();
-    for (size_t i = 0; i < program.size(); ++i)
-    {
-        this->mem_write(0x0600 + static_cast<uint16_t>(i), program[i]);
-    }
+    std::copy(program.begin(), program.end(), this->memory + 0x0600);
     this->mem_write_u16(0xFFFC, 0x0600);
 }
 
@@ -944,15 +946,12 @@ void CPU::jmp_abs()
 void CPU::jmp()
 {
     uint16_t mem_addr = this->mem_read_u16(this->pc);
-    if ((mem_addr & 0x00FF) == 0x00FF)
-    {
+    if ((mem_addr & 0x00FF) == 0x00FF) {
         uint8_t lo = this->mem_read(mem_addr);
         uint8_t hi = this->mem_read(mem_addr & 0xFF00);
         uint16_t jump_addr = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
         this->pc = jump_addr;
-    }
-    else
-    {
+    } else {
         uint16_t jump_addr = this->mem_read_u16(mem_addr);
         this->pc = jump_addr;
     }
