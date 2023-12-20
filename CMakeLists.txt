@@ -22,7 +22,7 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 # main sources variable
-set(SOURCES src/cpu.cpp src/opcode.cpp)
+set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
 
 # Add executable target
 add_executable(main.out ${SOURCES} src/main.cpp)
