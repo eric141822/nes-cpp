@@ -22,7 +22,7 @@ struct CPU_FLAGS
     static constexpr uint8_t DECIMAL_UNUSED = 0b00001000;
     static constexpr uint8_t BREAK = 0b00010000;
     static constexpr uint8_t UNUSED = 0b00100000; // should always be 1.
-    static constexpr uint8_t OVERFLOW = 0b01000000;
+    static constexpr uint8_t OVERFLW = 0b01000000;
     static constexpr uint8_t NEGATIVE = 0b10000000;
 };
 struct CPU
@@ -51,6 +51,8 @@ struct CPU
     bool check_status_flag();
     void add_to_register_a(uint8_t val);
     void set_register_a(uint8_t val);
+    void set_register_x(uint8_t val);
+    void set_register_y(uint8_t val);
     void stack_push(uint8_t val);
     uint8_t stack_pop();
     void stack_push_u16(uint16_t val);
@@ -74,11 +76,11 @@ struct CPU
     // CMP, CPX, CPY
     void cmp_op(AddressingMode mode, uint8_t reg);
 
-    void dec(AddressingMode mode);
+    uint8_t dec(AddressingMode mode);
     void dex(); // might not be needed, just implied op
     void dey(); // might not be needed, just implied op
     void eor(AddressingMode mode);
-    void inc(AddressingMode mode);
+    uint8_t inc(AddressingMode mode);
     void iny();
 
     void jmp();
@@ -87,17 +89,16 @@ struct CPU
     void ldx(AddressingMode mode);
     void ldy(AddressingMode mode);
     void lsr_acc();
-    void lsr(AddressingMode mode);
+    uint8_t lsr(AddressingMode mode);
     void ora(AddressingMode mode);
     void pha();
     void php();
     void pla();
     void plp();
     void rol_acc();
-    void rol(AddressingMode mode);
+    uint8_t rol(AddressingMode mode);
     void ror_acc();
-    void ror(AddressingMode mode);
-    /* ------ TODO ------ */
+    uint8_t ror(AddressingMode mode);
     void rti();
     void rts();
     void sbc(AddressingMode mode);
