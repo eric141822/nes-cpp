@@ -186,21 +186,21 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BCC
         case 0x90:
         {
-            this->branch(!(this->status & CPU_FLAGS::CARRY));
+            this->branch(!(this->status & cpu_flags::CARRY));
             break;
         }
 
         // BCS
         case 0xB0:
         {
-            this->branch((this->status & CPU_FLAGS::CARRY));
+            this->branch((this->status & cpu_flags::CARRY));
             break;
         }
 
         // BEQ
         case 0xF0:
         {
-            this->branch((this->status & CPU_FLAGS::ZERO));
+            this->branch((this->status & cpu_flags::ZERO));
             break;
         }
 
@@ -215,21 +215,21 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BMI
         case 0x30:
         {
-            this->branch((this->status & CPU_FLAGS::NEGATIVE));
+            this->branch((this->status & cpu_flags::NEGATIVE));
             break;
         }
 
         // BNE
         case 0xD0:
         {
-            this->branch(!(this->status & CPU_FLAGS::ZERO));
+            this->branch(!(this->status & cpu_flags::ZERO));
             break;
         }
 
         // BPL
         case 0x10:
         {
-            this->branch(!(this->status & CPU_FLAGS::NEGATIVE));
+            this->branch(!(this->status & cpu_flags::NEGATIVE));
             break;
         }
 
@@ -242,42 +242,42 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BVC
         case 0x50:
         {
-            this->branch(!(this->status & CPU_FLAGS::OVERFLW));
+            this->branch(!(this->status & cpu_flags::OVERFLW));
             break;
         }
 
         // BVS
         case 0x70:
         {
-            this->branch((this->status & CPU_FLAGS::OVERFLW));
+            this->branch((this->status & cpu_flags::OVERFLW));
             break;
         }
 
         // CLC
         case 0x18:
         {
-            this->status &= ~CPU_FLAGS::CARRY;
+            this->status &= ~cpu_flags::CARRY;
             break;
         }
 
         // CLD
         case 0xD8:
         {
-            this->status &= ~CPU_FLAGS::DECIMAL_UNUSED;
+            this->status &= ~cpu_flags::DECIMAL_UNUSED;
             break;
         }
 
         // CLI
         case 0x58:
         {
-            this->status &= ~CPU_FLAGS::INTERRUPT;
+            this->status &= ~cpu_flags::INTERRUPT;
             break;
         }
 
         // CLV
         case 0xB8:
         {
-            this->status &= ~CPU_FLAGS::OVERFLW;
+            this->status &= ~cpu_flags::OVERFLW;
             break;
         }
 
@@ -532,21 +532,21 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // SEC
         case 0x38:
         {
-            this->status |= CPU_FLAGS::CARRY;
+            this->status |= cpu_flags::CARRY;
             break;
         }
 
         // SED
         case 0xF8:
         {
-            this->status |= CPU_FLAGS::DECIMAL_UNUSED;
+            this->status |= cpu_flags::DECIMAL_UNUSED;
             break;
         }
 
         // SEI
         case 0x78:
         {
-            this->status |= CPU_FLAGS::INTERRUPT;
+            this->status |= cpu_flags::INTERRUPT;
             break;
         }
 
@@ -628,20 +628,20 @@ void CPU::set_zero_and_negative_flags(uint8_t register_value)
 {
     if (register_value == 0)
     {
-        this->status |= CPU_FLAGS::ZERO;
+        this->status |= cpu_flags::ZERO;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::ZERO;
+        this->status &= ~cpu_flags::ZERO;
     }
 
     if ((register_value >> 7) == 1)
     {
-        this->status |= CPU_FLAGS::NEGATIVE;
+        this->status |= cpu_flags::NEGATIVE;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::NEGATIVE;
+        this->status &= ~cpu_flags::NEGATIVE;
     }
 }
 
@@ -753,17 +753,17 @@ void CPU::add_to_register_a(uint8_t val)
 {
     // add 1 if carry flag is set.
     uint16_t result = static_cast<uint16_t>(this->register_a) +
-                      static_cast<uint16_t>(val) + static_cast<uint16_t>(this->status & CPU_FLAGS::CARRY);
+                      static_cast<uint16_t>(val) + static_cast<uint16_t>(this->status & cpu_flags::CARRY);
 
     // set carry flag if result is greater than 255, else unset.
     bool carry = result > 0xFF;
     if (carry)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     uint8_t result8 = static_cast<uint8_t>(result);
@@ -771,11 +771,11 @@ void CPU::add_to_register_a(uint8_t val)
     // set overflow flag if result is greater than 127, else unset.
     if (((val ^ result8) & (result8 ^ this->register_a) & 0x80) != 0)
     {
-        this->status |= CPU_FLAGS::OVERFLW;
+        this->status |= cpu_flags::OVERFLW;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::OVERFLW;
+        this->status &= ~cpu_flags::OVERFLW;
     }
 
     this->set_register_a(result8);
@@ -808,11 +808,11 @@ void CPU::asl_acc()
     uint8_t data = this->register_a;
     if ((data >> 7) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     data <<= 1;
@@ -827,11 +827,11 @@ uint8_t CPU::asl(AddressingMode mode)
     // set CARRY.
     if ((val >> 7) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     val <<= 1;
@@ -857,21 +857,21 @@ void CPU::bit(AddressingMode mode)
     uint8_t result = this->register_a & val;
     if (result == 0)
     {
-        this->status |= CPU_FLAGS::ZERO;
+        this->status |= cpu_flags::ZERO;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::ZERO;
+        this->status &= ~cpu_flags::ZERO;
     }
 
     if ((val & 0b1000'0000) > 0)
     {
-        this->status |= CPU_FLAGS::NEGATIVE;
+        this->status |= cpu_flags::NEGATIVE;
     }
 
     if ((val & 0b0100'0000) > 0)
     {
-        this->status |= CPU_FLAGS::OVERFLW;
+        this->status |= cpu_flags::OVERFLW;
     }
 }
 
@@ -882,11 +882,11 @@ void CPU::cmp_op(AddressingMode mode, uint8_t reg)
 
     if (val <= reg)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
     this->set_zero_and_negative_flags((reg - val));
 }
@@ -987,11 +987,11 @@ void CPU::lsr_acc()
     // old bit 0 is the new carry.
     if ((data & 1) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
     data >>= 1;
     this->set_register_a(data);
@@ -1005,11 +1005,11 @@ uint8_t CPU::lsr(AddressingMode mode)
     // old bit 0 is the new carry.
     if ((val & 1) != 0)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
     val >>= 1;
     this->mem_write(addr, val);
@@ -1035,8 +1035,8 @@ void CPU::pha()
 void CPU::php()
 {
     uint8_t status = this->status;
-    status |= CPU_FLAGS::BREAK;
-    status |= CPU_FLAGS::UNUSED;
+    status |= cpu_flags::BREAK;
+    status |= cpu_flags::UNUSED;
     this->stack_push(status);
 }
 
@@ -1049,8 +1049,8 @@ void CPU::pla()
 void CPU::plp()
 {
     this->status = this->stack_pop();
-    this->status &= ~CPU_FLAGS::BREAK;
-    this->status |= CPU_FLAGS::UNUSED; // reset this bit to 1.
+    this->status &= ~cpu_flags::BREAK;
+    this->status |= cpu_flags::UNUSED; // reset this bit to 1.
 }
 
 // rotate to left, the accumulator.
@@ -1059,15 +1059,15 @@ void CPU::rol_acc()
     // old bit 7 becomes new carry.
     // bit 0 is the old carry.
     uint8_t data = this->register_a;
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
+    bool old_carry = (this->status & cpu_flags::CARRY) == 1;
 
     if ((data >> 7) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     data <<= 1;
@@ -1085,15 +1085,15 @@ uint8_t CPU::rol(AddressingMode mode)
 
     // old bit 7 becomes new carry.
     // bit 0 is the old carry.
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
+    bool old_carry = (this->status & cpu_flags::CARRY) == 1;
 
     if ((val >> 7) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     val <<= 1;
@@ -1111,15 +1111,15 @@ void CPU::ror_acc()
     // old bit 0 becomes new carry.
     // bit 7 is the old carry.
     uint8_t data = this->register_a;
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
+    bool old_carry = (this->status & cpu_flags::CARRY) == 1;
 
     if ((data & 1) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     data >>= 1;
@@ -1135,14 +1135,14 @@ uint8_t CPU::ror(AddressingMode mode)
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
 
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
+    bool old_carry = (this->status & cpu_flags::CARRY) == 1;
     if ((val & 1) == 1)
     {
-        this->status |= CPU_FLAGS::CARRY;
+        this->status |= cpu_flags::CARRY;
     }
     else
     {
-        this->status &= ~CPU_FLAGS::CARRY;
+        this->status &= ~cpu_flags::CARRY;
     }
 
     val >>= 1;
@@ -1158,8 +1158,8 @@ uint8_t CPU::ror(AddressingMode mode)
 void CPU::rti()
 {
     this->status = this->stack_pop();
-    this->status &= ~CPU_FLAGS::BREAK;
-    this->status |= CPU_FLAGS::UNUSED; // reset this bit to 1.
+    this->status &= ~cpu_flags::BREAK;
+    this->status |= cpu_flags::UNUSED; // reset this bit to 1.
     this->pc = this->stack_pop_u16();
 }
 
