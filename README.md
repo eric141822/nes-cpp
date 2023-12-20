@@ -37,8 +37,8 @@ Run the following command to run the snake game using the 6502 CPU emulator:
 ## To-do List
 
 - [x] CPU (6502) with snake game.
-- [] BUS
-- [] NES ROM
+- [] BUS - IN PROGRESS
+- [] NES ROM - IN PROGRESS
 - [] PPU
 - [] GamePad
 - [] APU
