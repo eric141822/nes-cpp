@@ -8,7 +8,7 @@ The project is orginally written in Rust, but I ported it to C++ for learning pu
 
 This project uses CMake. If there is no `build` directory, create one:
 
-`mkdir build`
+`mkdir -p build`
 
 Run the following commands to build the project:
 
@@ -18,9 +18,25 @@ For tests, run:
 
 `make test`
 
+This project needs SDL2 to run. Install it using your package manager.
+
+### MacOS
+
+`brew install sdl2`
+
+### Debian/Ubuntu
+
+`sudo apt-get install libsdl2-dev`
+
+## Run
+
+Run the following command to run the snake game using the 6502 CPU emulator:
+
+`./build/snake.out`
+
 ## To-do List
 
-- [] CPU (6502) - In progress.
+- [x] CPU (6502) with snake game.
 - [] BUS
 - [] NES ROM
 - [] PPU
