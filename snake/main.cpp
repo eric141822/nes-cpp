@@ -57,7 +57,7 @@ bool read_screen_state(CPU &cpu, uint8_t screen_state[32 * 3 * 32])
     for (int i = 0x0200; i < 0x0600; ++i)
     {
         uint8_t color_idx = cpu.mem_read(i);
-        std::cout<< "color_idx: " << (int)color_idx << std::endl;
+        // std::cout<< "color_idx: " << (int)color_idx << std::endl;
         SDL_Color color = color_constructor(color_idx);
         uint8_t r = color.r;
         uint8_t g = color.g;
@@ -208,7 +208,7 @@ int main()
             SDL_RenderPresent(canvas);
         }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(70000)); });
+        std::this_thread::sleep_for(std::chrono::microseconds(50)); });
 
     // Clean up
     SDL_DestroyTexture(texture);

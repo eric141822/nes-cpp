@@ -3,20 +3,20 @@
 // helpers.
 void CPU::stack_push(uint8_t val)
 {
-    this->mem_write(STACK_START + this->stack_pointer, val);
-    this->stack_pointer--;
+    this->mem_write(STACK_START + static_cast<uint16_t>(this->stack_pointer), val);
+    this->stack_pointer -= 1;
 }
 
 uint8_t CPU::stack_pop()
 {
-    this->stack_pointer++;
-    return this->mem_read(STACK_START + this->stack_pointer);
+    this->stack_pointer += 1;
+    return this->mem_read(STACK_START + static_cast<uint16_t>(this->stack_pointer));
 }
 
 void CPU::stack_push_u16(uint16_t val)
 {
-    uint8_t lo = val & 0xFF;
-    uint8_t hi = val >> 8;
+    uint8_t lo = static_cast<uint8_t>(val & 0xFF);
+    uint8_t hi = static_cast<uint8_t>(val >> 8);
     this->stack_push(hi);
     this->stack_push(lo);
 }
@@ -24,8 +24,8 @@ void CPU::stack_push_u16(uint16_t val)
 uint16_t CPU::stack_pop_u16()
 {
     // reversal of stack_push_u16.
-    uint8_t lo = this->stack_pop();
-    uint8_t hi = this->stack_pop();
+    uint16_t lo = static_cast<uint16_t>(this->stack_pop());
+    uint16_t hi = static_cast<uint16_t>(this->stack_pop());
     return (hi << 8) | lo;
 }
 
@@ -93,7 +93,7 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
     {
         // std::cerr << "PC at: " << std::hex << static_cast<int>(this->pc) << std::endl;
         uint8_t code = this->mem_read(this->pc);
-        this->pc++;
+        this->pc += 1;
         uint16_t pc_state = this->pc;
 
         OpCode opcode = OP_CODES_MAP[code];
@@ -186,21 +186,21 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BCC
         case 0x90:
         {
-            this->branch((this->status & CPU_FLAGS::CARRY) == 0);
+            this->branch(!(this->status & CPU_FLAGS::CARRY));
             break;
         }
 
         // BCS
         case 0xB0:
         {
-            this->branch((this->status & CPU_FLAGS::CARRY) != 0);
+            this->branch((this->status & CPU_FLAGS::CARRY));
             break;
         }
 
         // BEQ
         case 0xF0:
         {
-            this->branch((this->status & CPU_FLAGS::ZERO) != 0);
+            this->branch((this->status & CPU_FLAGS::ZERO));
             break;
         }
 
@@ -215,21 +215,21 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BMI
         case 0x30:
         {
-            this->branch((this->status & CPU_FLAGS::NEGATIVE) != 0);
+            this->branch((this->status & CPU_FLAGS::NEGATIVE));
             break;
         }
 
         // BNE
         case 0xD0:
         {
-            this->branch((this->status & CPU_FLAGS::ZERO) == 0);
+            this->branch(!(this->status & CPU_FLAGS::ZERO));
             break;
         }
 
         // BPL
         case 0x10:
         {
-            this->branch((this->status & CPU_FLAGS::NEGATIVE) == 0);
+            this->branch(!(this->status & CPU_FLAGS::NEGATIVE));
             break;
         }
 
@@ -242,14 +242,14 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
         // BVC
         case 0x50:
         {
-            this->branch((this->status & CPU_FLAGS::OVERFLW) == 0);
+            this->branch(!(this->status & CPU_FLAGS::OVERFLW));
             break;
         }
 
         // BVS
         case 0x70:
         {
-            this->branch((this->status & CPU_FLAGS::OVERFLW) != 0);
+            this->branch((this->status & CPU_FLAGS::OVERFLW));
             break;
         }
 
@@ -612,18 +612,12 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
 
         default:
         {
-            // std::cerr << "Not implemented opcode: " << std::hex << static_cast<int>(code) << std::endl;
-            // force exit.
-            // exit(EXIT_FAILURE);
             break;
         }
         }
-        // std::cout << "this->pc: " << std::hex << static_cast<int>(this->pc) << std::endl;
-        // std::cout << "pc_state: " << std::hex << static_cast<int>(pc_state) << std::endl;
         if (this->pc == pc_state)
         {
-            this->pc += (opcode.len - 1);
-            // std::cout << "PC after update: " << std::hex << static_cast<int>(this->pc) << std::endl;
+            this->pc += static_cast<uint16_t>((opcode.len - 1));
         }
 
         callback(*this);
@@ -634,30 +628,28 @@ void CPU::set_zero_and_negative_flags(uint8_t register_value)
 {
     if (register_value == 0)
     {
-        this->status |= 0b0000'0010;
+        this->status |= CPU_FLAGS::ZERO;
     }
     else
     {
-        this->status &= 0b1111'1101;
+        this->status &= ~CPU_FLAGS::ZERO;
     }
 
-    if ((register_value & 0b1000'0000) != 0)
+    if ((register_value >> 7) == 1)
     {
-        this->status |= 0b1000'0000;
+        this->status |= CPU_FLAGS::NEGATIVE;
     }
     else
     {
-        this->status &= 0b0111'1111;
+        this->status &= ~CPU_FLAGS::NEGATIVE;
     }
 }
 
 void CPU::lda(AddressingMode mode)
 {
-    // std::cout << "In LDA mode:" << mode << std::endl;
     uint16_t addr = this->get_operand_address(mode);
-    this->register_a = this->mem_read(addr);
-    // std::cout << "addr: " << addr << " with val = " << static_cast<int>(this->register_a) << std::endl;
-    this->set_zero_and_negative_flags(this->register_a);
+    uint8_t val = this->mem_read(addr);
+    this->set_register_a(val);
 }
 
 void CPU::tax()
@@ -668,7 +660,7 @@ void CPU::tax()
 
 void CPU::inx()
 {
-    this->register_x++;
+    this->register_x += 1;
     this->set_zero_and_negative_flags(this->register_x);
 }
 
@@ -685,43 +677,42 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     case ZeroPageX:
     {
         uint8_t pos = this->mem_read(this->pc);
-        uint16_t addr = static_cast<uint16_t>(pos + this->register_x);
+        uint16_t addr = static_cast<uint16_t>((pos + this->register_x));
         return addr;
     }
     case ZeroPageY:
     {
         uint8_t pos = this->mem_read(this->pc);
-        uint16_t addr = static_cast<uint16_t>(pos + this->register_y);
+        uint16_t addr = static_cast<uint16_t>((pos + this->register_y));
         return addr;
     }
     case AbsoluteX:
     {
-        uint16_t pos = this->mem_read_u16(this->pc);
-        uint16_t addr = pos + this->register_x;
+        uint16_t base = this->mem_read_u16(this->pc);
+        uint16_t addr = base + this->register_x;
         return addr;
     }
     case AbsoluteY:
     {
-        uint16_t pos = this->mem_read_u16(this->pc);
-        uint16_t addr = pos + this->register_y;
+        uint16_t base = this->mem_read_u16(this->pc);
+        uint16_t addr = base + this->register_y;
         return addr;
     }
     case IndirectX:
     {
         uint8_t base = this->mem_read(this->pc);
-
         uint8_t ptr = base + this->register_x;
-        uint16_t lo = this->mem_read(ptr);
-        uint16_t hi = this->mem_read(ptr + 1);
+        uint16_t lo = this->mem_read(static_cast<uint16_t>(ptr));
+        uint16_t hi = this->mem_read(static_cast<uint16_t>(ptr + 1));
         return (hi << 8) | lo;
     }
     case IndirectY:
     {
         uint8_t base = this->mem_read(this->pc);
-        uint16_t lo = this->mem_read(base);
-        uint16_t hi = this->mem_read(base + 1);
+        uint16_t lo = this->mem_read(static_cast<uint16_t>(base));
+        uint16_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
         uint16_t deref_base = (hi << 8) | lo;
-        uint16_t deref = deref_base + this->register_y;
+        uint16_t deref = deref_base + static_cast<uint16_t>(this->register_y);
         return deref;
     }
     case NoneAddressing:
@@ -729,16 +720,14 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     {
         // not supported, cout to stderr;
         std::cerr << "Not supported addressing mode: " << mode << std::endl;
-        return -1;
+        exit(1);
     }
     }
 }
 
 void CPU::sta(AddressingMode mode)
 {
-    // std::cerr << "In STA mode:" << mode << std::endl;
     uint16_t addr = this->get_operand_address(mode);
-    // std::cerr << "addr: " << addr << " with val = " << static_cast<int>(this->register_a) << std::endl;
     this->mem_write(addr, this->register_a);
 }
 
@@ -748,6 +737,18 @@ void CPU::set_register_a(uint8_t val)
     this->set_zero_and_negative_flags(this->register_a);
 }
 
+void CPU::set_register_x(uint8_t val)
+{
+    this->register_x = val;
+    this->set_zero_and_negative_flags(this->register_x);
+}
+
+void CPU::set_register_y(uint8_t val)
+{
+    this->register_y = val;
+    this->set_zero_and_negative_flags(this->register_y);
+}
+
 void CPU::add_to_register_a(uint8_t val)
 {
     // add 1 if carry flag is set.
@@ -755,7 +756,8 @@ void CPU::add_to_register_a(uint8_t val)
                       static_cast<uint16_t>(val) + static_cast<uint16_t>(this->status & CPU_FLAGS::CARRY);
 
     // set carry flag if result is greater than 255, else unset.
-    if (result > 0xFF)
+    bool carry = result > 0xFF;
+    if (carry)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -764,8 +766,10 @@ void CPU::add_to_register_a(uint8_t val)
         this->status &= ~CPU_FLAGS::CARRY;
     }
 
+    uint8_t result8 = static_cast<uint8_t>(result);
+
     // set overflow flag if result is greater than 127, else unset.
-    if ((val ^ result) & (result ^ this->register_a) & 0x80)
+    if (((val ^ result8) & (result8 ^ this->register_a) & 0x80) != 0)
     {
         this->status |= CPU_FLAGS::OVERFLW;
     }
@@ -774,7 +778,7 @@ void CPU::add_to_register_a(uint8_t val)
         this->status &= ~CPU_FLAGS::OVERFLW;
     }
 
-    this->set_register_a(static_cast<uint8_t>(result));
+    this->set_register_a(result8);
 }
 
 void CPU::adc(AddressingMode mode)
@@ -784,29 +788,25 @@ void CPU::adc(AddressingMode mode)
     this->add_to_register_a(val);
 }
 
-uint8_t wrapping_neg(uint8_t value)
-{
-    return static_cast<uint8_t>(-value);
-}
-
 void CPU::sbc(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
-    uint8_t val = this->mem_read(addr);
-    this->add_to_register_a(wrapping_neg(val) - 1);
+    int8_t val = static_cast<int8_t>(this->mem_read(addr));
+    this->add_to_register_a(static_cast<uint8_t>((-val - 1)));
 }
 
 void CPU::and_op(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
-    this->set_register_a(this->register_a & val);
+    this->set_register_a(val & this->register_a);
 }
 
 void CPU::asl_acc()
 {
     // set CARRY.
-    if ((this->register_a >> 7) == 1)
+    uint8_t data = this->register_a;
+    if ((data >> 7) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -815,8 +815,8 @@ void CPU::asl_acc()
         this->status &= ~CPU_FLAGS::CARRY;
     }
 
-    this->register_a <<= 1;
-    this->set_zero_and_negative_flags(this->register_a);
+    data <<= 1;
+    this->set_register_a(data);
 }
 
 uint8_t CPU::asl(AddressingMode mode)
@@ -844,7 +844,9 @@ void CPU::branch(bool cond)
 {
     if (cond)
     {
-        this->pc += 1 + this->mem_read(this->pc);
+        int8_t jump = static_cast<int8_t>(this->mem_read(this->pc));
+        uint16_t jump_addr = this->pc + 1 + static_cast<uint16_t>(jump);
+        this->pc = jump_addr;
     }
 }
 
@@ -862,12 +864,12 @@ void CPU::bit(AddressingMode mode)
         this->status &= ~CPU_FLAGS::ZERO;
     }
 
-    if ((val & 0b1000'0000) != 0)
+    if ((val & 0b1000'0000) > 0)
     {
         this->status |= CPU_FLAGS::NEGATIVE;
     }
 
-    if ((val & 0b0100'0000) != 0)
+    if ((val & 0b0100'0000) > 0)
     {
         this->status |= CPU_FLAGS::OVERFLW;
     }
@@ -878,7 +880,7 @@ void CPU::cmp_op(AddressingMode mode, uint8_t reg)
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
 
-    if (reg >= val)
+    if (val <= reg)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -886,16 +888,17 @@ void CPU::cmp_op(AddressingMode mode, uint8_t reg)
     {
         this->status &= ~CPU_FLAGS::CARRY;
     }
-    this->set_zero_and_negative_flags(reg - val);
+    this->set_zero_and_negative_flags((reg - val));
 }
 
-void CPU::dec(AddressingMode mode)
+uint8_t CPU::dec(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
     val--;
     this->mem_write(addr, val);
     this->set_zero_and_negative_flags(val);
+    return val;
 }
 
 void CPU::dex()
@@ -914,72 +917,75 @@ void CPU::eor(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
-    this->set_register_a(this->register_a ^ val);
+    this->set_register_a(val ^ this->register_a);
 }
 
-void CPU::inc(AddressingMode mode)
+uint8_t CPU::inc(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
-    val++;
+    val += 1;
     this->mem_write(addr, val);
     this->set_zero_and_negative_flags(val);
+    return val;
 }
 
 void CPU::iny()
 {
-    this->register_y++;
+    this->register_y += 1;
     this->set_zero_and_negative_flags(this->register_y);
 }
 
 void CPU::jmp_abs()
 {
-    this->pc = this->mem_read_u16(this->pc);
+    uint16_t jump_addr = this->mem_read_u16(this->pc);
+    this->pc = jump_addr;
 }
 
 // Indirect jump
 void CPU::jmp()
 {
-    uint16_t addr = this->mem_read_u16(this->pc);
-
-    // BUG in the original 6502, if the low byte of the address is 0xFF, then the high byte is fetched from the same page.
-    if ((addr & 0x00FF) == 0x00FF)
-    {
-        uint16_t lo = this->mem_read(addr);
-        uint16_t hi = this->mem_read(addr & 0xFF00); // get hi btyes.
-        this->pc = (hi << 8) | lo;
-    }
-    else
-    {
-        this->pc = addr;
+    uint16_t mem_addr = this->mem_read_u16(this->pc);
+    if ((mem_addr & 0x00FF) == 0x00FF) {
+        uint8_t lo = this->mem_read(mem_addr);
+        uint8_t hi = this->mem_read(mem_addr & 0xFF00);
+        uint16_t jump_addr = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
+        this->pc = jump_addr;
+    } else {
+        uint16_t jump_addr = this->mem_read_u16(mem_addr);
+        this->pc = jump_addr;
     }
 }
 
 void CPU::jsr()
 {
-    this->stack_push_u16(this->pc + 2 - 1);
-    this->pc = this->mem_read_u16(this->pc);
+    this->stack_push_u16((this->pc + 2 - 1));
+    uint16_t jump_addr = this->mem_read_u16(this->pc);
+    this->pc = jump_addr;
 }
 
 void CPU::ldx(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
-    this->register_x = this->mem_read(addr);
+    uint8_t val = this->mem_read(addr);
+    this->register_x = val;
     this->set_zero_and_negative_flags(this->register_x);
 }
 
 void CPU::ldy(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
-    this->register_y = this->mem_read(addr);
+    uint8_t val = this->mem_read(addr);
+    this->register_y = val;
     this->set_zero_and_negative_flags(this->register_y);
 }
 
 // LSR for accumulator.
 void CPU::lsr_acc()
 {
+    uint8_t data = this->register_a;
     // old bit 0 is the new carry.
-    if ((this->register_a & 0b0000'0001) != 0)
+    if ((data & 1) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -987,17 +993,17 @@ void CPU::lsr_acc()
     {
         this->status &= ~CPU_FLAGS::CARRY;
     }
-    this->register_a >>= 1;
-    this->set_zero_and_negative_flags(this->register_a);
+    data >>= 1;
+    this->set_register_a(data);
 }
 
-void CPU::lsr(AddressingMode mode)
+uint8_t CPU::lsr(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
 
     // old bit 0 is the new carry.
-    if ((val & 0b0000'0001) != 0)
+    if ((val & 1) != 0)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -1008,13 +1014,14 @@ void CPU::lsr(AddressingMode mode)
     val >>= 1;
     this->mem_write(addr, val);
     this->set_zero_and_negative_flags(val);
+    return val;
 }
 
 void CPU::ora(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
-    this->set_register_a(this->register_a | val);
+    this->set_register_a(val | this->register_a);
 }
 
 void CPU::pha()
@@ -1027,14 +1034,16 @@ void CPU::pha()
 // none are these flags are used by the processor itself.
 void CPU::php()
 {
-    uint8_t status = this->status | CPU_FLAGS::UNUSED;
+    uint8_t status = this->status;
     status |= CPU_FLAGS::BREAK;
+    status |= CPU_FLAGS::UNUSED;
     this->stack_push(status);
 }
 
 void CPU::pla()
 {
-    this->set_register_a(this->stack_pop());
+    uint8_t data = this->stack_pop();
+    this->set_register_a(data);
 }
 
 void CPU::plp()
@@ -1049,9 +1058,10 @@ void CPU::rol_acc()
 {
     // old bit 7 becomes new carry.
     // bit 0 is the old carry.
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) != 0;
+    uint8_t data = this->register_a;
+    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
 
-    if ((this->register_a & 0b1000'0000) != 0)
+    if ((data >> 7) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -1060,24 +1070,24 @@ void CPU::rol_acc()
         this->status &= ~CPU_FLAGS::CARRY;
     }
 
-    this->register_a <<= 1;
+    data <<= 1;
     if (old_carry)
     {
-        this->register_a |= 0b0000'0001;
+        data |= 1;
     }
-    this->set_zero_and_negative_flags(this->register_a);
+    this->set_register_a(data);
 }
 
-void CPU::rol(AddressingMode mode)
+uint8_t CPU::rol(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
 
     // old bit 7 becomes new carry.
     // bit 0 is the old carry.
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) != 0;
+    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
 
-    if ((val & 0b1000'0000) != 0)
+    if ((val >> 7) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -1089,19 +1099,21 @@ void CPU::rol(AddressingMode mode)
     val <<= 1;
     if (old_carry)
     {
-        val |= 0b0000'0001;
+        val |= 1;
     }
     this->mem_write(addr, val);
     this->set_zero_and_negative_flags(val);
+    return val;
 }
 
 void CPU::ror_acc()
 {
     // old bit 0 becomes new carry.
     // bit 7 is the old carry.
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) != 0;
+    uint8_t data = this->register_a;
+    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
 
-    if ((this->register_a & 0b0000'0001) != 0)
+    if ((data & 1) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -1110,21 +1122,21 @@ void CPU::ror_acc()
         this->status &= ~CPU_FLAGS::CARRY;
     }
 
-    this->register_a >>= 1;
+    data >>= 1;
     if (old_carry)
     {
-        this->register_a |= 0b1000'0000;
+        data |= 0b1000'0000;
     }
-    this->set_zero_and_negative_flags(this->register_a);
+    this->set_register_a(data);
 }
 
-void CPU::ror(AddressingMode mode)
+uint8_t CPU::ror(AddressingMode mode)
 {
     uint16_t addr = this->get_operand_address(mode);
     uint8_t val = this->mem_read(addr);
 
-    bool old_carry = (this->status & CPU_FLAGS::CARRY) != 0;
-    if ((val & 0b0000'0001) != 0)
+    bool old_carry = (this->status & CPU_FLAGS::CARRY) == 1;
+    if ((val & 1) == 1)
     {
         this->status |= CPU_FLAGS::CARRY;
     }
@@ -1140,6 +1152,7 @@ void CPU::ror(AddressingMode mode)
     }
     this->mem_write(addr, val);
     this->set_zero_and_negative_flags(val);
+    return val;
 }
 
 void CPU::rti()
