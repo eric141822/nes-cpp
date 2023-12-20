@@ -1,5 +1,5 @@
 #include "opcode.h"
-
+#include <iostream>
 std::vector<OpCode> CPU_OP_CODES = {
     OpCode(0x00, "BRK", 1, 7, AddressingMode::NoneAddressing),
     OpCode(0xea, "NOP", 1, 2, AddressingMode::NoneAddressing),
@@ -201,4 +201,9 @@ void init_op_codes_map()
     {
         OP_CODES_MAP[op_code.opcode] = op_code;
     }
+
+    // for (const auto &item : OP_CODES_MAP)
+    // {
+    //     std::cout << std::hex << (int)item.first << " " << item.second.code_name << " mode: " << item.second.mode << std::endl;
+    // }
 }

@@ -78,8 +78,8 @@ void CPU::load_and_run(std::vector<uint8_t> program)
 void CPU::load(std::vector<uint8_t> program)
 {
     init_op_codes_map();
-    std::copy(program.begin(), program.end(), this->memory + 0x8000);
-    this->mem_write_u16(0xFFFC, 0x8000);
+    std::copy(program.begin(), program.end(), this->memory + 0x0600);
+    this->mem_write_u16(0xFFFC, 0x0600);
 }
 
 void CPU::run()
