@@ -11,7 +11,7 @@ Rom::Rom(std::vector<uint8_t> raw)
         }
     }
 
-    mapper = (raw[7] & 0b1111'0000) | (raw[6] >> 4);
+    uint8_t mapper = (raw[7] & 0b1111'0000) | (raw[6] >> 4);
 
     uint8_t ines_version = (raw[7] >> 2) & 0b0000'0011;
     if (ines_version != 0)
@@ -24,8 +24,8 @@ Rom::Rom(std::vector<uint8_t> raw)
     bool vertical_mirrowig = raw[6] & 0b0000'0001;
     Mirroring screen_mirroring = four_screen ? Mirroring::FOUR_SCREEN : vertical_mirrowig ? Mirroring::VERTICAL
                                                                                           : Mirroring::HORIZONTAL;
-    uint16_t prg_rom_size = raw[4] * PRG_ROM_PAGE_SIZE;
-    uint16_t chr_rom_size = raw[5] * CHR_ROM_PAGE_SIZE;
+    size_t prg_rom_size = static_cast<size_t>(raw[4]) * PRG_ROM_PAGE_SIZE;
+    size_t chr_rom_size = static_cast<size_t>(raw[5]) * CHR_ROM_PAGE_SIZE;
 
     bool skip_trainer = raw[6] & 0b0000'0100;
 

@@ -15,7 +15,7 @@ uint8_t Bus::mem_read(uint16_t address)
     }
     else if (address >= 0x8000 && address <= 0xFFFF)
     {
-        return this->read_prog_rom(address);
+        return read_prog_rom(address);
     }
     else
     {
@@ -24,12 +24,6 @@ uint8_t Bus::mem_read(uint16_t address)
     }
 }
 
-uint16_t Bus::mem_read_u16(uint16_t address)
-{
-    uint16_t lo = static_cast<uint16_t>(this->mem_read(address));
-    uint16_t hi = static_cast<uint16_t>(this->mem_read(address + 1));
-    return (hi << 8) | lo;
-}
 
 void Bus::mem_write(uint16_t address, uint8_t value)
 {
@@ -52,14 +46,6 @@ void Bus::mem_write(uint16_t address, uint8_t value)
     {
         std::cout << "Invalid address\n";
     }
-}
-
-void Bus::mem_write_u16(uint16_t address, uint16_t value)
-{
-    uint8_t lo = value & 0xFF;
-    uint8_t hi = value >> 8;
-    this->mem_write(address, lo);
-    this->mem_write(address + 1, hi);
 }
 
 uint8_t Bus::read_prog_rom(uint16_t address)
