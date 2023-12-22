@@ -42,7 +42,6 @@ void CPU::mem_write(uint16_t address, uint8_t value)
 // Little-endian read.
 uint16_t CPU::mem_read_u16(uint16_t address)
 {
-    std::cout << "CPU mem_read_u16: " << std::hex << static_cast<int>(address) << std::endl;
     return bus.mem_read_u16(address);
 }
 
@@ -54,6 +53,7 @@ void CPU::mem_write_u16(uint16_t address, uint16_t value)
 
 void CPU::reset()
 {
+    init_op_codes_map();
     this->register_a = 0;
     this->register_x = 0;
     this->register_y = 0;
@@ -91,7 +91,9 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
     while (true)
     {
         uint8_t code = this->mem_read(this->pc);
-        this->pc += 1;
+
+        this->pc++;
+
         uint16_t pc_state = this->pc;
 
         OpCode opcode = OP_CODES_MAP[code];
