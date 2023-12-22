@@ -201,9 +201,4 @@ void init_op_codes_map()
     {
         OP_CODES_MAP[op_code.opcode] = op_code;
     }
-
-    // for (const auto &item : OP_CODES_MAP)
-    // {
-    //     std::cout << std::hex << (int)item.first << " " << item.second.code_name << " mode: " << item.second.mode << std::endl;
-    // }
 }

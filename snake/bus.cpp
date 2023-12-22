@@ -57,7 +57,6 @@ uint8_t Bus::read_prog_rom(uint16_t address)
     {
         address %= 0x4000;
     }
-    // std::cout << "Reading from PRG ROM at address: " << std::hex << address << std::endl;
-    // std::cout << "Value: " << std::hex << static_cast<int>(this->rom.prg_rom[address]) << std::endl;
+
     return this->rom.prg_rom[address];
 }

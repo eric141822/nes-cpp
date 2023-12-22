@@ -31,7 +31,6 @@ std::vector<uint8_t> read_rom(const std::string &file)
 
 SDL_Color color_constructor(uint8_t byte)
 {
-    // std::cout << "byte: " << (int)byte << std::endl;
     switch (byte)
     {
     // BLACK
@@ -79,7 +78,6 @@ bool read_screen_state(CPU &cpu, uint8_t screen_state[32 * 3 * 32])
     for (int i = 0x0200; i < 0x0600; ++i)
     {
         uint8_t color_idx = cpu.mem_read(i);
-        // std::cout<< "color_idx: " << (int)color_idx << std::endl;
         SDL_Color color = color_constructor(color_idx);
         uint8_t r = color.r;
         uint8_t g = color.g;
