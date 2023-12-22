@@ -32,19 +32,6 @@ Rom::Rom(std::vector<uint8_t> raw)
     uint16_t prg_rom_start = 16 + (skip_trainer ? 512 : 0);
     uint16_t chr_rom_start = prg_rom_start + prg_rom_size;
 
-    // std::vector<uint8_t> prg_rom;
-    // std::vector<uint8_t> chr_rom;
-
-    // for (size_t i = prg_rom_start; i < (prg_rom_start + prg_rom_size); i++)
-    // {
-    //     prg_rom.push_back(raw[i]);
-    // }
-
-    // for (size_t i = chr_rom_start; i < (chr_rom_start + chr_rom_size); i++)
-    // {
-    //     chr_rom.push_back(raw[i]);
-    // }
-
     this->prg_rom = std::vector<uint8_t>(raw.begin() + prg_rom_start, raw.begin() + prg_rom_start + prg_rom_size);
     this->chr_rom = std::vector<uint8_t>(raw.begin() + chr_rom_start, raw.begin() + chr_rom_start + chr_rom_size);
     this->screen_mirroring = screen_mirroring;

@@ -22,7 +22,7 @@ struct Rom {
     Mirroring screen_mirroring;
 
     Rom() {};
-    Rom(std::vector<uint8_t> raw);
+    explicit Rom(std::vector<uint8_t> raw);
 };
 
 #endif // !ROM_H
