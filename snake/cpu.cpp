@@ -42,6 +42,7 @@ void CPU::mem_write(uint16_t address, uint8_t value)
 // Little-endian read.
 uint16_t CPU::mem_read_u16(uint16_t address)
 {
+    std::cout << "mem_read_u16\n";
     return bus.mem_read_u16(address);
 }
 

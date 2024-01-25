@@ -24,7 +24,6 @@ uint8_t Bus::mem_read(uint16_t address)
     }
 }
 
-
 void Bus::mem_write(uint16_t address, uint8_t value)
 {
     if (address >= RAM && address <= RAM_END)
