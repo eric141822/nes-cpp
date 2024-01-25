@@ -36,7 +36,7 @@ uint8_t CPU::mem_read(uint16_t address)
 
 void CPU::mem_write(uint16_t address, uint8_t value)
 {
-    this->memory[address] = value;
+    bus.mem_write(address, value);
 }
 
 // Little-endian read.
