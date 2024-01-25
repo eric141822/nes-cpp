@@ -36,7 +36,7 @@ uint8_t CPU::mem_read(uint16_t address)
 
 void CPU::mem_write(uint16_t address, uint8_t value)
 {
-    this->bus.mem_write(address, value);
+    this->memory[address] = value;
 }
 
 // Little-endian read.
@@ -945,15 +945,12 @@ void CPU::jmp_abs()
 void CPU::jmp()
 {
     uint16_t mem_addr = this->mem_read_u16(this->pc);
-    if ((mem_addr & 0x00FF) == 0x00FF)
-    {
+    if ((mem_addr & 0x00FF) == 0x00FF) {
         uint8_t lo = this->mem_read(mem_addr);
         uint8_t hi = this->mem_read(mem_addr & 0xFF00);
         uint16_t jump_addr = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
         this->pc = jump_addr;
-    }
-    else
-    {
+    } else {
         uint16_t jump_addr = this->mem_read_u16(mem_addr);
         this->pc = jump_addr;
     }

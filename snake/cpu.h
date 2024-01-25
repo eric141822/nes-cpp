@@ -4,7 +4,6 @@
 #include <vector>
 #include "opcode.h"
 #include "global.h"
-#include "bus.h"
 #include <functional>
 
 // STACK in 6502 CPU is 256 bytes long, and it starts at 0x0100, ends at 0x01FF
@@ -33,8 +32,9 @@ struct CPU : public Mem
     uint8_t register_y;
     uint8_t status;
     uint16_t pc;
+    uint8_t memory[0xFFFF];
     uint8_t stack_pointer;
-    Bus bus;
+
     CPU() : register_a(0), register_x(0), register_y(0), status(STATUS_RESET), pc(0), stack_pointer(STACK_RESET){};
     explicit CPU(Bus bus) : register_a(0), register_x(0), register_y(0), status(STATUS_RESET), pc(0), stack_pointer(STACK_RESET), bus(bus){};
     
