@@ -25,7 +25,7 @@ namespace cpu_flags
     static constexpr uint8_t OVERFLW = 0b01000000;
     static constexpr uint8_t NEGATIVE = 0b10000000;
 };
-struct CPU
+struct CPU : public Mem
 {
     uint8_t register_a;
     uint8_t register_x;
@@ -36,15 +36,18 @@ struct CPU
     uint8_t stack_pointer;
 
     CPU() : register_a(0), register_x(0), register_y(0), status(STATUS_RESET), pc(0), stack_pointer(STACK_RESET){};
-    uint8_t mem_read(uint16_t address);
-    void mem_write(uint16_t address, uint8_t value);
-    uint16_t mem_read_u16(uint16_t address);
-    void mem_write_u16(uint16_t address, uint16_t value);
+    explicit CPU(Bus bus) : register_a(0), register_x(0), register_y(0), status(STATUS_RESET), pc(0), stack_pointer(STACK_RESET), bus(bus){};
+    
+    uint8_t mem_read(uint16_t address) override;
+    void mem_write(uint16_t address, uint8_t value) override;
+    uint16_t mem_read_u16(uint16_t address) override;
+    void mem_write_u16(uint16_t address, uint16_t value) override;
+
     void reset();
     void load_and_run(std::vector<uint8_t> program);
     void load(std::vector<uint8_t> program);
     void run();
-    void run_with_callback(std::function<void(CPU&)> callback);
+    void run_with_callback(std::function<void(CPU &)> callback);
 
     /* ------ HELPERS ------ */
     void set_zero_and_negative_flags(uint8_t register_value);

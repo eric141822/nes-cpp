@@ -31,7 +31,7 @@ uint16_t CPU::stack_pop_u16()
 
 uint8_t CPU::mem_read(uint16_t address)
 {
-    return this->memory[address];
+    return bus.mem_read(address);
 }
 
 void CPU::mem_write(uint16_t address, uint8_t value)
@@ -42,22 +42,18 @@ void CPU::mem_write(uint16_t address, uint8_t value)
 // Little-endian read.
 uint16_t CPU::mem_read_u16(uint16_t address)
 {
-    uint16_t lo = static_cast<uint16_t>(this->mem_read(address));
-    uint16_t hi = static_cast<uint16_t>(this->mem_read(address + 1));
-    return (hi << 8) | lo;
+    return bus.mem_read_u16(address);
 }
 
 // Little-endian write.
 void CPU::mem_write_u16(uint16_t address, uint16_t value)
 {
-    uint8_t lo = value & 0xFF;
-    uint8_t hi = value >> 8;
-    this->mem_write(address, lo);
-    this->mem_write(address + 1, hi);
+    bus.mem_write_u16(address, value);
 }
 
 void CPU::reset()
 {
+    init_op_codes_map();
     this->register_a = 0;
     this->register_x = 0;
     this->register_y = 0;
@@ -78,8 +74,11 @@ void CPU::load_and_run(std::vector<uint8_t> program)
 void CPU::load(std::vector<uint8_t> program)
 {
     init_op_codes_map();
-    std::copy(program.begin(), program.end(), this->memory + 0x0600);
-    this->mem_write_u16(0xFFFC, 0x0600);
+    for (size_t i = 0; i < program.size(); ++i)
+    {
+        this->mem_write(0x8600 + static_cast<uint16_t>(i), program[i]);
+    }
+    this->mem_write_u16(0xFFFC, 0x8600);
 }
 
 void CPU::run()
@@ -91,13 +90,13 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
 {
     while (true)
     {
-        // std::cerr << "PC at: " << std::hex << static_cast<int>(this->pc) << std::endl;
         uint8_t code = this->mem_read(this->pc);
-        this->pc += 1;
+
+        this->pc++;
+
         uint16_t pc_state = this->pc;
 
         OpCode opcode = OP_CODES_MAP[code];
-        // std::cerr << "opcode: " << std::hex << static_cast<int>(opcode.opcode) << " with mode: " << opcode.mode << std::endl;
 
         switch (code)
         {
