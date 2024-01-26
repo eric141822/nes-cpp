@@ -25,7 +25,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 # main sources variable
 set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
-set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp snake/rom.cpp)
+set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp snake/rom.cpp snake/trace.cpp)
 
 # Add executable target
 # add_executable(main.out ${SOURCES} src/main.cpp)

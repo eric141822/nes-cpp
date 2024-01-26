@@ -2,12 +2,12 @@
 #include <cassert>
 #include "cpu.h"
 #include <SDL2/SDL.h>
-// #include <SDL2/SDL_image.h>
 #include <random>
 #include <chrono>
 #include <thread>
 #include <string>
 #include <fstream>
+#include <cassert>
 
 const std::string FILE_NAME = "../snake/snake.nes";
 
@@ -140,6 +140,7 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
 
 int main()
 {
+   
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
