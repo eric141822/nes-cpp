@@ -2,12 +2,12 @@
 #include <cassert>
 #include "cpu.h"
 #include <SDL2/SDL.h>
-// #include <SDL2/SDL_image.h>
 #include <random>
 #include <chrono>
 #include <thread>
 #include <string>
 #include <fstream>
+#include <cassert>
 
 const std::string FILE_NAME = "../snake/snake.nes";
 
@@ -140,6 +140,7 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
 
 int main()
 {
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -191,7 +192,6 @@ int main()
     CPU cpu(bus);
     cpu.reset();
 
-
     uint8_t screen_state[32 * 3 * 32] = {0};
     std::default_random_engine rng;
     std::uniform_int_distribution<uint8_t> dist(1, 15);
@@ -200,17 +200,18 @@ int main()
 
     cpu.run_with_callback([&](CPU &cpu)
                           {
-                              handle_user_input(cpu, event);
+                                                    handle_user_input(cpu, event);
 
-        cpu.mem_write(0xfe, dist(rng));
+                              cpu.mem_write(0xfe, dist(rng));
 
-        if (read_screen_state(cpu, screen_state)) {
-            SDL_UpdateTexture(texture, nullptr, screen_state, 32 * 3);
-            SDL_RenderCopy(canvas, texture, nullptr, nullptr);
-            SDL_RenderPresent(canvas);
-        }
+                              if (read_screen_state(cpu, screen_state)) {
+                                  SDL_UpdateTexture(texture, nullptr, screen_state, 32 * 3);
+                                  SDL_RenderCopy(canvas, texture, nullptr, nullptr);
+                                  SDL_RenderPresent(canvas);
+                              }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(50)); });
+                              std::this_thread::sleep_for(std::chrono::microseconds(50));
+                          });
 
     // Clean up
     SDL_DestroyTexture(texture);

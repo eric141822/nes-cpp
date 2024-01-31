@@ -25,12 +25,15 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 # main sources variable
 set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
-set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp snake/rom.cpp)
-
+set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp snake/rom.cpp snake/trace.cpp)
+set(TRACE_SOURCES trace/cpu.cpp trace/opcode.cpp trace/bus.cpp trace/main.cpp trace/rom.cpp trace/trace.cpp)
 # Add executable target
 # add_executable(main.out ${SOURCES} src/main.cpp)
 add_executable(snake.out ${SNAKE_SOURCES})
 target_link_libraries(snake.out PRIVATE ${SDL2_LIBRARIES} fmt::fmt-header-only)
+
+add_executable(trace.out ${TRACE_SOURCES})
+target_link_libraries(trace.out PRIVATE fmt::fmt-header-only)
 
 # set(TEST_NAMES lda_immediate_load_data lda_immediate_zero_flag tax_move_a_to_x inx_overflow 5_ops_together lda_from_memory)
 
