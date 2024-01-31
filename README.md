@@ -18,6 +18,8 @@ For tests, run:
 
 `make test`
 
+## Dependencies
+
 This project needs SDL2 to run. Install it using your package manager.
 
 ### MacOS
@@ -27,6 +29,16 @@ This project needs SDL2 to run. Install it using your package manager.
 ### Debian/Ubuntu
 
 `sudo apt-get install libsdl2-dev`
+
+You will also need the [fmt](https://fmt.dev/latest/index.html) library to run the project. CMake has been configured to use [vcpkg](https://vcpkg.io/en/getting-started)
+
+### Install fmt using vcpkg
+
+`vcpkg install fmt`
+
+### Integrate vcpkg with CMake
+
+Run CMake with `-DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake` during configuration.
 
 ## Run
 
@@ -39,6 +51,7 @@ Run the following command to run the snake game using the 6502 CPU emulator:
 - [x] CPU (6502) with snake game.
 - [x] BUS
 - [x] NES ROM
+- [] Trace Logger and NES Test ROM - In progress
 - [] PPU
 - [] GamePad
 - [] APU
