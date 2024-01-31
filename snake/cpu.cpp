@@ -90,6 +90,8 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
 {
     while (true)
     {
+        callback(*this);
+
         uint8_t code = this->mem_read(this->pc);
 
         this->pc++;
@@ -611,7 +613,9 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
 
         default:
         {
-            break;
+            std::cerr << "Not implemented: " << std::hex << static_cast<int>(code) << std::endl;
+            exit(1);
+            // break;
         }
         }
         if (this->pc == pc_state)
@@ -619,7 +623,7 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
             this->pc += static_cast<uint16_t>((opcode.len - 1));
         }
 
-        callback(*this);
+        // callback(*this);
     }
 };
 
@@ -663,43 +667,41 @@ void CPU::inx()
     this->set_zero_and_negative_flags(this->register_x);
 }
 
-uint16_t CPU::get_operand_address(AddressingMode mode)
+uint16_t CPU::get_abs_address(AddressingMode mode, uint16_t begin)
 {
     switch (mode)
     {
-    case Immediate:
-        return this->pc;
     case ZeroPage:
-        return static_cast<uint16_t>(this->mem_read(this->pc));
+        return static_cast<uint16_t>(this->mem_read(begin));
     case Absolute:
-        return this->mem_read_u16(this->pc);
+        return this->mem_read_u16(begin);
     case ZeroPageX:
     {
-        uint8_t pos = this->mem_read(this->pc);
+        uint8_t pos = this->mem_read(begin);
         uint16_t addr = static_cast<uint16_t>((pos + this->register_x));
         return addr;
     }
     case ZeroPageY:
     {
-        uint8_t pos = this->mem_read(this->pc);
+        uint8_t pos = this->mem_read(begin);
         uint16_t addr = static_cast<uint16_t>((pos + this->register_y));
         return addr;
     }
     case AbsoluteX:
     {
-        uint16_t base = this->mem_read_u16(this->pc);
+        uint16_t base = this->mem_read_u16(begin);
         uint16_t addr = base + this->register_x;
         return addr;
     }
     case AbsoluteY:
     {
-        uint16_t base = this->mem_read_u16(this->pc);
+        uint16_t base = this->mem_read_u16(begin);
         uint16_t addr = base + this->register_y;
         return addr;
     }
     case IndirectX:
     {
-        uint8_t base = this->mem_read(this->pc);
+        uint8_t base = this->mem_read(begin);
         uint8_t ptr = base + this->register_x;
         uint16_t lo = this->mem_read(static_cast<uint16_t>(ptr));
         uint16_t hi = this->mem_read(static_cast<uint16_t>(ptr + 1));
@@ -707,7 +709,7 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
     }
     case IndirectY:
     {
-        uint8_t base = this->mem_read(this->pc);
+        uint8_t base = this->mem_read(begin);
         uint16_t lo = this->mem_read(static_cast<uint16_t>(base));
         uint16_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
         uint16_t deref_base = (hi << 8) | lo;
@@ -721,6 +723,17 @@ uint16_t CPU::get_operand_address(AddressingMode mode)
         std::cerr << "Not supported addressing mode: " << mode << std::endl;
         exit(1);
     }
+    }
+}
+
+uint16_t CPU::get_operand_address(AddressingMode mode)
+{
+    switch (mode)
+    {
+    case Immediate:
+        return this->pc;
+    default:
+        return this->get_abs_address(mode, this->pc);
     }
 }
 
@@ -945,12 +958,15 @@ void CPU::jmp_abs()
 void CPU::jmp()
 {
     uint16_t mem_addr = this->mem_read_u16(this->pc);
-    if ((mem_addr & 0x00FF) == 0x00FF) {
+    if ((mem_addr & 0x00FF) == 0x00FF)
+    {
         uint8_t lo = this->mem_read(mem_addr);
         uint8_t hi = this->mem_read(mem_addr & 0xFF00);
         uint16_t jump_addr = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
         this->pc = jump_addr;
-    } else {
+    }
+    else
+    {
         uint16_t jump_addr = this->mem_read_u16(mem_addr);
         this->pc = jump_addr;
     }

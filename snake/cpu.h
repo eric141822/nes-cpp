@@ -115,6 +115,7 @@ struct CPU : public Mem
     void tya();
 
     uint16_t get_operand_address(AddressingMode mode);
+    uint16_t get_abs_address(AddressingMode mode, uint16_t addr);
 };
 
 #endif // !CPU_H

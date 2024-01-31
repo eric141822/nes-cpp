@@ -29,8 +29,11 @@ set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp sn
 
 # Add executable target
 # add_executable(main.out ${SOURCES} src/main.cpp)
-add_executable(snake.out ${SNAKE_SOURCES})
-target_link_libraries(snake.out PRIVATE ${SDL2_LIBRARIES} fmt::fmt-header-only)
+# add_executable(snake.out ${SNAKE_SOURCES})
+# target_link_libraries(snake.out PRIVATE ${SDL2_LIBRARIES} fmt::fmt-header-only)
+
+add_executable(trace.out ${SNAKE_SOURCES})
+target_link_libraries(trace.out PRIVATE ${SDL2_LIBRARIES} fmt::fmt-header-only)
 
 # set(TEST_NAMES lda_immediate_load_data lda_immediate_zero_flag tax_move_a_to_x inx_overflow 5_ops_together lda_from_memory)
 

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cassert>
 #include "cpu.h"
+#include "trace.h"
 #include <SDL2/SDL.h>
 #include <random>
 #include <chrono>
@@ -140,7 +141,7 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
 
 int main()
 {
-   
+
     // Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
@@ -185,13 +186,14 @@ int main()
         return 1;
     }
 
-    std::vector<uint8_t> rom_code = read_rom(FILE_NAME);
+    // std::vector<uint8_t> rom_code = read_rom(FILE_NAME);
+    std::vector<uint8_t> rom_code = read_rom("../snake/nestest.nes");
 
     Rom rom(rom_code);
     Bus bus(rom);
     CPU cpu(bus);
     cpu.reset();
-
+    cpu.pc = 0xc000;
 
     uint8_t screen_state[32 * 3 * 32] = {0};
     std::default_random_engine rng;
@@ -201,17 +203,19 @@ int main()
 
     cpu.run_with_callback([&](CPU &cpu)
                           {
-                              handle_user_input(cpu, event);
+                              std::cout << trace(cpu) << std::endl;
+                              //                       handle_user_input(cpu, event);
 
-        cpu.mem_write(0xfe, dist(rng));
+                              // cpu.mem_write(0xfe, dist(rng));
 
-        if (read_screen_state(cpu, screen_state)) {
-            SDL_UpdateTexture(texture, nullptr, screen_state, 32 * 3);
-            SDL_RenderCopy(canvas, texture, nullptr, nullptr);
-            SDL_RenderPresent(canvas);
-        }
+                              // if (read_screen_state(cpu, screen_state)) {
+                              //     SDL_UpdateTexture(texture, nullptr, screen_state, 32 * 3);
+                              //     SDL_RenderCopy(canvas, texture, nullptr, nullptr);
+                              //     SDL_RenderPresent(canvas);
+                              // }
 
-        std::this_thread::sleep_for(std::chrono::microseconds(50)); });
+                              // std::this_thread::sleep_for(std::chrono::microseconds(50));
+                          });
 
     // Clean up
     SDL_DestroyTexture(texture);
