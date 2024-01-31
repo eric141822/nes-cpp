@@ -130,8 +130,7 @@ std::string trace(CPU &cpu)
     }
     default:
     {
-        std::cout << "Unknown length: " << ops.len << std::endl;
-        tmp = "";
+        exit(1);
         break;
     }
     }
