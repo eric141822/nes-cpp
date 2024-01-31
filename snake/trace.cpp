@@ -141,8 +141,8 @@ std::string trace(CPU &cpu)
         hex_str += fmt::format("{:02X} ", i);
     }
 
-    std::string asm_str = fmt::format("{:04X}  {:8} {:>4} {}", begin, hex_str, ops.code_name, tmp);
+    std::string asm_str = fmt::format("{:04X}  {:9} {:>4} {}", begin, hex_str, ops.code_name, tmp);
 
-    return fmt::format("{:<47} A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
+    return fmt::format("{:47} A:{:02X} X:{:02X} Y:{:02X} P:{:02X} SP:{:02X}",
                        asm_str, cpu.register_a, cpu.register_x, cpu.register_y, cpu.status, cpu.stack_pointer);
 }
