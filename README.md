@@ -30,7 +30,7 @@ This project needs SDL2 to run. Install it using your package manager.
 
 `sudo apt-get install libsdl2-dev`
 
-You will also need the [fmt](https://fmt.dev/latest/index.html) library to run the project. CMake has been configured to use [vcpkg](https://vcpkg.io/en/getting-started)
+You will also need the [fmt](https://fmt.dev/latest/index.html) library to run the project. CMake has been configured to use [vcpkg](https://vcpkg.io/en/getting-started). Follow the instructions on the vcpkg website to install it. You may also opt to build fmt from source or use you choice of package manager, such as conan. 
 
 ### Install fmt using vcpkg
 
