@@ -4,20 +4,6 @@ This is a NES emulator written in C++. Following the fantastic [write up](https:
 
 The project is orginally written in Rust, but I ported it to C++ for learning purposes.
 
-## Build
-
-This project uses CMake. If there is no `build` directory, create one:
-
-`mkdir -p build`
-
-Run the following commands to build the project:
-
-`cd build && cmake .. && make`
-
-For tests, run:
-
-`make test`
-
 ## Dependencies
 
 This project needs SDL2 to run. Install it using your package manager.
