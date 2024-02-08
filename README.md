@@ -51,7 +51,8 @@ Run the following command to run the snake game using the 6502 CPU emulator:
 - [x] CPU (6502) with snake game.
 - [x] BUS
 - [x] NES ROM
-- [] Trace Logger and NES Test ROM - In progress
+- [x] Trace Logger
+- [] Undocumented Instructions - IN PROGRESS
 - [] PPU
 - [] GamePad
 - [] APU
