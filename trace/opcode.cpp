@@ -292,7 +292,6 @@ std::vector<OpCode> CPU_OP_CODES = {
     OpCode(0x5a, "*NOP", 1, 2, AddressingMode::NoneAddressing),
     OpCode(0x7a, "*NOP", 1, 2, AddressingMode::NoneAddressing),
     OpCode(0xda, "*NOP", 1, 2, AddressingMode::NoneAddressing),
-    // OpCode(0xea, "NOP", 1,2, AddressingMode::NoneAddressing),
     OpCode(0xfa, "*NOP", 1, 2, AddressingMode::NoneAddressing),
 
     OpCode(0xab, "*LXA", 2, 3, AddressingMode::Immediate), // todo: highly unstable and not used
