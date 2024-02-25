@@ -14,7 +14,7 @@ const uint16_t STACK_START = 0x0100;
 // documented stack pointer start state.
 const uint8_t STACK_RESET = 0xFD;
 
-const uint8_t STATUS_RESET = 0b00100100;
+const uint8_t STATUS_RESET = 0b100100;
 namespace cpu_flags
 {
     static constexpr uint8_t CARRY = 0b00000001;

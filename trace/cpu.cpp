@@ -611,6 +611,345 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
             break;
         }
 
+        // unoffical opcodes.
+
+        // DCP
+        case 0xC7:
+        case 0xD7:
+        case 0xCF:
+        case 0xDF:
+        case 0xDB:
+        case 0xC3:
+        case 0xD3:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            data--;
+            this->mem_write(addr, data);
+            if (data <= this->register_a)
+            {
+                this->status |= cpu_flags::CARRY;
+            }
+            this->set_zero_and_negative_flags((this->register_a - data));
+            break;
+        }
+
+        // RLA
+        case 0x27:
+        case 0x37:
+        case 0x2F:
+        case 0x3F:
+        case 0x3B:
+        case 0x23:
+        case 0x33:
+        {
+            uint8_t data = this->rol(opcode.mode);
+            this->register_a &= data;
+            break;
+        }
+
+        // SLO
+        case 0x07:
+        case 0x17:
+        case 0x0F:
+        case 0x1F:
+        case 0x1B:
+        case 0x03:
+        case 0x13:
+        {
+            uint8_t data = this->asl(opcode.mode);
+            this->register_a |= data;
+            break;
+        }
+
+        // SRE
+        case 0x47:
+        case 0x57:
+        case 0x4F:
+        case 0x5F:
+        case 0x5B:
+        case 0x43:
+        case 0x53:
+        {
+            uint8_t data = this->lsr(opcode.mode);
+            this->register_a ^= data;
+            break;
+        }
+
+        // SKB (NOP)
+        case 0x80:
+        case 0x82:
+        case 0x89:
+        case 0xc2:
+        case 0xe2:
+        {
+            break;
+        }
+
+        // AXS
+        case 0xCB:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            uint8_t res = (this->register_a & this->register_x) - data;
+            if (data <= (this->register_x & this->register_a))
+            {
+                this->status |= cpu_flags::CARRY;
+            }
+            this->set_zero_and_negative_flags(res);
+            this->register_x = res;
+            break;
+        }
+
+        // ARR
+        case 0x6B:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->add_to_register_a(data);
+            this->ror_acc();
+            uint8_t res = this->register_a;
+
+            // bit 6
+            if ((res & 0b0100'0000) > 0)
+            {
+                this->status |= cpu_flags::CARRY;
+            }
+            else
+            {
+                this->status &= ~cpu_flags::CARRY;
+            }
+
+            // bit 6 ^ bit 5
+            if (((res & 0b0100'0000) ^ (res & 0b0010'0000)) == 1)
+            {
+                this->status |= cpu_flags::OVERFLW;
+            }
+            else
+            {
+                this->status &= ~cpu_flags::OVERFLW;
+            }
+
+            this->set_zero_and_negative_flags(res);
+            break;
+        }
+
+        // unoffical SBC
+        case 0xEB:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->register_a--;
+            break;
+        }
+
+        // ANC
+        case 0x0B:
+        case 0x2B:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->register_a &= data;
+            if (this->status & cpu_flags::NEGATIVE)
+            {
+                this->status |= cpu_flags::CARRY;
+            }
+            else
+            {
+                this->status &= ~cpu_flags::CARRY;
+            }
+            break;
+        }
+
+        // ALR
+        case 0x4B:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->register_a &= data;
+            this->lsr_acc();
+            break;
+        }
+
+        // NOP read
+        case 0x04:
+        case 0x44:
+        case 0x64:
+        case 0x14:
+        case 0x34:
+        case 0x54:
+        case 0x74:
+        case 0xD4:
+        case 0xF4:
+        case 0x0C:
+        case 0x1C:
+        case 0x3C:
+        case 0x5C:
+        case 0x7C:
+        case 0xDC:
+        case 0xFC:
+        {
+            this->mem_read(this->get_operand_address(opcode.mode));
+            break;
+        }
+
+        // RRA
+        case 0x67:
+        case 0x77:
+        case 0x6F:
+        case 0x7F:
+        case 0x7B:
+        case 0x63:
+        case 0x73:
+        {
+            uint8_t data = this->ror(opcode.mode);
+            this->add_to_register_a(data);
+            break;
+        }
+
+        // ISB
+        case 0xE7:
+        case 0xF7:
+        case 0xEF:
+        case 0xFF:
+        case 0xFB:
+        case 0xE3:
+        case 0xF3:
+        {
+            uint8_t data = this->inc(opcode.mode);
+            this->register_a -= data;
+            break;
+        }
+        // NOP
+        case 0x02:
+        case 0x12:
+        case 0x22:
+        case 0x32:
+        case 0x42:
+        case 0x52:
+        case 0x62:
+        case 0x72:
+        case 0x92:
+        case 0xB2:
+        case 0xD2:
+        case 0xF2:
+        case 0x1A:
+        case 0x3A:
+        case 0x5A:
+        case 0x7A:
+        case 0xDA:
+        case 0xFA:
+        {
+            break;
+        }
+
+        // LAX
+        case 0xA7:
+        case 0xB7:
+        case 0xAF:
+        case 0xBF:
+        case 0xA3:
+        case 0xB3:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->set_register_a(data);
+            this->register_x = this->register_a;
+            break;
+        }
+
+        // SAX
+        case 0x87:
+        case 0x97:
+        case 0x8F:
+        case 0x83:
+        {
+            uint8_t data = this->register_a & this->register_x;
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            this->mem_write(addr, data);
+            break;
+        }
+
+        // LXA
+        case 0xAB:
+        {
+            this->lda(opcode.mode);
+            this->tax();
+            break;
+        }
+
+        // XAA
+        case 0x8B:
+        {
+            this->register_a = this->register_x;
+            this->set_zero_and_negative_flags(this->register_a);
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            this->register_a &= data;
+            break;
+        }
+
+        // LAS
+        case 0xBB:
+        {
+            uint8_t addr = this->get_operand_address(opcode.mode);
+            uint8_t data = this->mem_read(addr);
+            data &= this->stack_pointer;
+            this->register_a = data;
+            this->register_x = data;
+            this->stack_pointer = data;
+            this->set_zero_and_negative_flags(data);
+            break;
+        }
+
+        // TAS
+        case 0x9B:
+        {
+            uint8_t data = this->register_a & this->register_x;
+            this->stack_pointer = data;
+            uint16_t mem_addr = this->mem_read_u16(this->pc) + static_cast<uint16_t>(this->register_y);
+            data = (static_cast<uint8_t>((mem_addr >> 8)) + 1) & this->stack_pointer;
+            this->mem_write(mem_addr, data);
+            break;
+        }
+
+        // AHX Indirect Y
+        case 0x93:
+        {
+            uint8_t pos = this->mem_read(this->pc);
+            uint16_t mem_addr = this->mem_read_u16(pos) + static_cast<uint16_t>(this->register_y);
+            uint8_t data = this->register_a & this->register_x & static_cast<uint8_t>((mem_addr >> 8));
+            this->mem_write(mem_addr, data);
+            break;
+        }
+
+        // AHX Absolute Y
+        case 0x9F:
+        {
+            uint16_t mem_addr = this->mem_read_u16(this->pc) + static_cast<uint16_t>(this->register_y);
+            uint8_t data = this->register_a & this->register_x & static_cast<uint8_t>((mem_addr >> 8));
+            this->mem_write(mem_addr, data);
+            break;
+        }
+
+        // SHX
+        case 0x9E:
+        {
+            uint16_t mem_addr = this->mem_read_u16(this->pc) + static_cast<uint16_t>(this->register_y);
+            uint8_t data = this->register_x & (static_cast<uint8_t>((mem_addr >> 8)) + 1);
+            this->mem_write(mem_addr, data);
+            break;
+        }
+
+        // SHY
+        case 0x9C:
+        {
+            uint16_t mem_addr = this->mem_read_u16(this->pc) + static_cast<uint16_t>(this->register_x);
+            uint8_t data = this->register_y & (static_cast<uint8_t>((mem_addr >> 8)) + 1);
+            this->mem_write(mem_addr, data);
+            break;
+        }
+
         default:
         {
             std::cerr << "Not implemented: " << std::hex << static_cast<int>(code) << std::endl;
