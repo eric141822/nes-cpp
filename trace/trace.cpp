@@ -60,7 +60,7 @@ std::string trace(CPU &cpu)
         }
         case AddressingMode::IndirectX:
         {
-            tmp = fmt::format("(${:02X},X) @ {:02X} = {:04X} = {:02X}", address, addr - static_cast<uint16_t>(cpu.register_x), addr, stored_value);
+            tmp = fmt::format("(${:02X},X) @ {:02X} = {:04X} = {:02X}", address, address + static_cast<uint16_t>(cpu.register_x), addr, stored_value);
             break;
         }
         case AddressingMode::IndirectY:

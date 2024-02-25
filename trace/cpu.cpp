@@ -962,7 +962,6 @@ void CPU::run_with_callback(std::function<void(CPU &)> callback)
             this->pc += static_cast<uint16_t>((opcode.len - 1));
         }
 
-        // callback(*this);
     }
 };
 
@@ -1029,29 +1028,30 @@ uint16_t CPU::get_abs_address(AddressingMode mode, uint16_t begin)
     case AbsoluteX:
     {
         uint16_t base = this->mem_read_u16(begin);
-        uint16_t addr = base + this->register_x;
+        uint16_t addr = base + static_cast<uint16_t>(this->register_x);
         return addr;
     }
     case AbsoluteY:
     {
         uint16_t base = this->mem_read_u16(begin);
-        uint16_t addr = base + this->register_y;
+        uint16_t addr = base + static_cast<uint16_t>(this->register_y);
         return addr;
     }
     case IndirectX:
     {
         uint8_t base = this->mem_read(begin);
-        uint8_t ptr = base + this->register_x;
-        uint16_t lo = this->mem_read(static_cast<uint16_t>(ptr));
-        uint16_t hi = this->mem_read(static_cast<uint16_t>(ptr + 1));
-        return (hi << 8) | lo;
+
+        uint8_t ptr = static_cast<uint8_t>(base) + this->register_x;
+        uint8_t lo = this->mem_read(static_cast<uint16_t>(ptr));
+        uint8_t hi = this->mem_read(static_cast<uint16_t>((ptr + 1)));
+        return (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
     }
     case IndirectY:
     {
         uint8_t base = this->mem_read(begin);
-        uint16_t lo = this->mem_read(static_cast<uint16_t>(base));
-        uint16_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
-        uint16_t deref_base = (hi << 8) | lo;
+        uint8_t lo = this->mem_read(static_cast<uint16_t>(base));
+        uint8_t hi = this->mem_read(static_cast<uint16_t>(base + 1));
+        uint16_t deref_base = (static_cast<uint16_t>(hi) << 8) | static_cast<uint16_t>(lo);
         uint16_t deref = deref_base + static_cast<uint16_t>(this->register_y);
         return deref;
     }
@@ -1219,10 +1219,18 @@ void CPU::bit(AddressingMode mode)
     {
         this->status |= cpu_flags::NEGATIVE;
     }
+    else
+    {
+        this->status &= ~cpu_flags::NEGATIVE;
+    }
 
     if ((val & 0b0100'0000) > 0)
     {
         this->status |= cpu_flags::OVERFLW;
+    }
+    else
+    {
+        this->status &= ~cpu_flags::OVERFLW;
     }
 }
 
