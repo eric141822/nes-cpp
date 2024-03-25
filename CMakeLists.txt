@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 enable_testing()
 
 # Project name
-project(NES-CPP)
+project(CHIP6502-CPP)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -24,7 +24,7 @@ find_package(fmt CONFIG REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2_IMAGE_INCLUDE_DIRS})
 
 # main sources variable
-set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
+# set(SOURCES src/cpu.cpp src/opcode.cpp src/bus.cpp)
 set(SNAKE_SOURCES snake/cpu.cpp snake/opcode.cpp snake/bus.cpp snake/main.cpp snake/rom.cpp snake/trace.cpp)
 set(TRACE_SOURCES trace/cpu.cpp trace/opcode.cpp trace/bus.cpp trace/main.cpp trace/rom.cpp trace/trace.cpp)
 # Add executable target

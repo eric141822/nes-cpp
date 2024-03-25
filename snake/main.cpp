@@ -1,6 +1,6 @@
 #include <iostream>
 #include <cassert>
-#include "cpu.h"
+#include "CPU.h"
 #include <SDL2/SDL.h>
 #include <random>
 #include <chrono>
@@ -11,7 +11,7 @@
 
 const std::string FILE_NAME = "../snake/snake.nes";
 
-std::vector<uint8_t> read_rom(const std::string &file)
+std::vector<NES::u8> read_rom(const std::string &file)
 {
     std::ifstream rom_file(file, std::ios::binary);
 
@@ -21,15 +21,15 @@ std::vector<uint8_t> read_rom(const std::string &file)
         exit(1);
     }
 
-    std::vector<uint8_t> rom_data((std::istreambuf_iterator<char>(rom_file)),
-                                  std::istreambuf_iterator<char>());
+    std::vector<NES::u8> rom_data((std::istreambuf_iterator<char>(rom_file)),
+                             std::istreambuf_iterator<char>());
 
     rom_file.close();
 
     return rom_data;
 }
 
-SDL_Color color_constructor(uint8_t byte)
+SDL_Color color_constructor(NES::u8 byte)
 {
     switch (byte)
     {
@@ -71,17 +71,17 @@ SDL_Color color_constructor(uint8_t byte)
     }
 }
 
-bool read_screen_state(CPU &cpu, uint8_t screen_state[32 * 3 * 32])
+bool read_screen_state(NES::CPU &CPU, NES::u8 screen_state[32 * 3 * 32])
 {
     bool update = false;
     int frame_idx = 0;
     for (int i = 0x0200; i < 0x0600; ++i)
     {
-        uint8_t color_idx = cpu.mem_read(i);
+        NES::u8 color_idx = CPU.mem_read(i);
         SDL_Color color = color_constructor(color_idx);
-        uint8_t r = color.r;
-        uint8_t g = color.g;
-        uint8_t b = color.b;
+        NES::u8 r = color.r;
+        NES::u8 g = color.g;
+        NES::u8 b = color.b;
         if (screen_state[frame_idx] != r || screen_state[frame_idx + 1] != g || screen_state[frame_idx + 2] != b)
         {
             screen_state[frame_idx] = r;
@@ -94,7 +94,7 @@ bool read_screen_state(CPU &cpu, uint8_t screen_state[32 * 3 * 32])
     return update;
 }
 
-void handle_user_input(CPU &cpu, SDL_Event &event)
+void handle_user_input(NES::CPU &CPU, SDL_Event &event)
 {
     while (SDL_PollEvent(&event))
     {
@@ -114,22 +114,22 @@ void handle_user_input(CPU &cpu, SDL_Event &event)
             // if W is pressed
             else if (event.key.keysym.sym == SDLK_w)
             {
-                cpu.mem_write(0xff, 0x77);
+                CPU.mem_write(0xff, 0x77);
             }
             // if A is pressed
             else if (event.key.keysym.sym == SDLK_a)
             {
-                cpu.mem_write(0xff, 0x61);
+                CPU.mem_write(0xff, 0x61);
             }
             // if S is pressed
             else if (event.key.keysym.sym == SDLK_s)
             {
-                cpu.mem_write(0xff, 0x73);
+                CPU.mem_write(0xff, 0x73);
             }
             // if D is pressed
             else if (event.key.keysym.sym == SDLK_d)
             {
-                cpu.mem_write(0xff, 0x64);
+                CPU.mem_write(0xff, 0x64);
             }
         default:
             // do nothing
@@ -185,33 +185,32 @@ int main()
         return 1;
     }
 
-    std::vector<uint8_t> rom_code = read_rom(FILE_NAME);
+    std::vector<NES::u8> rom_code = read_rom(FILE_NAME);
 
-    Rom rom(rom_code);
-    Bus bus(rom);
-    CPU cpu(bus);
-    cpu.reset();
+    NES::Rom rom(rom_code);
+    NES::Bus bus(rom);
+    NES::CPU CPU(bus);
+    CPU.reset();
 
-    uint8_t screen_state[32 * 3 * 32] = {0};
+    NES::u8 screen_state[32 * 3 * 32] = {0};
     std::default_random_engine rng;
-    std::uniform_int_distribution<uint8_t> dist(1, 15);
+    std::uniform_int_distribution<NES::u8> dist(1, 15);
 
     SDL_Event event;
 
-    cpu.run_with_callback([&](CPU &cpu)
+    CPU.run_with_callback([&](NES::CPU &CPU)
                           {
-                                                    handle_user_input(cpu, event);
+                                                    handle_user_input(CPU, event);
 
-                              cpu.mem_write(0xfe, dist(rng));
+                              CPU.mem_write(0xfe, dist(rng));
 
-                              if (read_screen_state(cpu, screen_state)) {
+                              if (read_screen_state(CPU, screen_state)) {
                                   SDL_UpdateTexture(texture, nullptr, screen_state, 32 * 3);
                                   SDL_RenderCopy(canvas, texture, nullptr, nullptr);
                                   SDL_RenderPresent(canvas);
                               }
 
-                              std::this_thread::sleep_for(std::chrono::microseconds(50));
-                          });
+                              std::this_thread::sleep_for(std::chrono::microseconds(50)); });
 
     // Clean up
     SDL_DestroyTexture(texture);

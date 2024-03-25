@@ -2,43 +2,51 @@
 #define GLOBAL_H
 
 #include <cstdint>
-
-enum AddressingMode
+namespace NES
 {
-    Immediate,
-    ZeroPage,
-    ZeroPageX,
-    ZeroPageY,
-    Absolute,
-    AbsoluteX,
-    AbsoluteY,
-    IndirectX,
-    IndirectY,
-    NoneAddressing,
-};
-
-class Mem
-{
-public:
-    virtual ~Mem() = default;
-
-    virtual uint8_t mem_read(uint16_t address) = 0;
-    virtual void mem_write(uint16_t address, uint8_t value) = 0;
-
-    virtual uint16_t mem_read_u16(uint16_t pos)
+    typedef uint8_t u8;
+    typedef uint16_t u16;
+    typedef uint32_t u32;
+    typedef int8_t i8;
+    typedef int16_t i16;
+    typedef int32_t i32;
+    enum AddressingMode
     {
-        uint16_t lo = static_cast<uint16_t>(mem_read(pos));
-        uint16_t hi = static_cast<uint16_t>(mem_read(pos + 1));
-        return (hi << 8) | lo;
-    }
+        Immediate,
+        ZeroPage,
+        ZeroPageX,
+        ZeroPageY,
+        Absolute,
+        AbsoluteX,
+        AbsoluteY,
+        IndirectX,
+        IndirectY,
+        NoneAddressing,
+    };
 
-    virtual void mem_write_u16(uint16_t pos, uint16_t data)
+    class Mem
     {
-        uint8_t hi = static_cast<uint8_t>(data >> 8);
-        uint8_t lo = static_cast<uint8_t>(data & 0xFF);
-        mem_write(pos, lo);
-        mem_write(pos + 1, hi);
-    }
-};
+    public:
+        virtual ~Mem() = default;
+
+        virtual u8 mem_read(u16 address) = 0;
+        virtual void mem_write(u16 address, u8 value) = 0;
+
+        virtual u16 mem_read_u16(u16 pos)
+        {
+            u16 lo = static_cast<u16>(mem_read(pos));
+            u16 hi = static_cast<u16>(mem_read(pos + 1));
+            return (hi << 8) | lo;
+        }
+
+        virtual void mem_write_u16(u16 pos, u16 data)
+        {
+            u8 hi = static_cast<u8>(data >> 8);
+            u8 lo = static_cast<u8>(data & 0xFF);
+            mem_write(pos, lo);
+            mem_write(pos + 1, hi);
+        }
+    };
+}
 
 #endif // !GLOBAL_H
